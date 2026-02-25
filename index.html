@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank Snake Game</title>
+    <title>VietinBank Snake Game - Learning Edition</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
@@ -33,7 +33,7 @@
         .brand-box { background: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px; }
         .brand-text { color: var(--vtb-blue-dark); font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         
-        .intro-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; max-width: 400px; text-align: center; }
+        .intro-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; max-width: 400px; }
         
         input, select { padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; border: none; margin-bottom: 12px; font-size: 16px; outline: none; }
         
@@ -42,14 +42,15 @@
             font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #b31217;
         }
 
-        .controls-wrapper { background: #fff; padding: 10px 0; border-top: 1px solid #ddd; flex-shrink: 0; display: flex; justify-content: center; }
+        .controls-wrapper { background: #fff; padding: 10px 0; border-top: 1px solid #ddd; flex-shrink: 0; display: flex; justify-content: center; position: relative; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
         .ctrl-btn { width: 60px; height: 60px; background: var(--vtb-blue-dark); color: white; border: none; border-radius: 12px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
         .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
 
+        .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+
         .vtb-footnote { height: 8px; width: 100%; background: linear-gradient(90deg, var(--vtb-blue-dark) 0%, var(--vtb-blue-light) 50%, var(--vtb-red) 100%); flex-shrink: 0; }
         
-        /* Tối ưu hiển thị câu hỏi dài và nhiều phương án */
         .quiz-card { background: white; color: #333; padding: 15px; border-radius: 12px; width: 100%; max-width: 450px; border-top: 6px solid var(--vtb-red); max-height: 90vh; overflow-y: auto; }
         .quiz-card h4 { font-size: 0.95rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
         .opt-btn { width: 100%; padding: 10px 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.85rem; line-height: 1.3; cursor: pointer; }
@@ -91,6 +92,7 @@
 </div>
 
 <div class="controls-wrapper">
+    <button class="audio-toggle" id="audio-toggle">🔊</button>
     <div class="d-pad">
         <button class="ctrl-btn up" onmousedown="setDir('UP')" ontouchstart="setDir('UP')">▲</button>
         <button class="ctrl-btn left" onmousedown="setDir('LEFT')" ontouchstart="setDir('LEFT')">◀</button>
@@ -102,6 +104,33 @@
 <div class="vtb-footnote"></div>
 
 <script>
+// --- AUDIO SYSTEM ---
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+let isMuted = false;
+
+function playTone(freq, type, duration, vol) {
+    if (isMuted || !audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+const sfx = {
+    eat: () => playTone(600, 'sine', 0.1, 0.1),
+    correct: () => { playTone(523, 'sine', 0.1, 0.1); setTimeout(() => playTone(659, 'sine', 0.2, 0.1), 100); },
+    wrong: () => playTone(150, 'sawtooth', 0.4, 0.1),
+    bg: null
+};
+
+// --- GAME LOGIC ---
 const CONFIG = {
     settings: { gridSize: 15, fps: 5 },
     data: {
@@ -125,10 +154,15 @@ let canvas, ctx, snake, food, direction, nextDirection, score, gameTimer, second
 const GS = CONFIG.settings.gridSize;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const btn = document.getElementById('start-trigger');
-    btn.addEventListener('click', validateAndStart);
+    document.getElementById('start-trigger').addEventListener('click', validateAndStart);
+    document.getElementById('audio-toggle').addEventListener('click', toggleAudio);
     init();
 });
+
+function toggleAudio() {
+    isMuted = !isMuted;
+    document.getElementById('audio-toggle').innerText = isMuted ? '🔇' : '🔊';
+}
 
 function init() {
     canvas = document.getElementById('gameCanvas');
@@ -139,6 +173,7 @@ function init() {
 }
 
 function validateAndStart() {
+    if (!audioCtx) audioCtx = new AudioCtx();
     const nameInput = document.getElementById('student-name').value.trim();
     if (!nameInput) { alert("Vui lòng nhập tên!"); return; }
     startGame();
@@ -146,7 +181,7 @@ function validateAndStart() {
 
 function startGame() {
     const lv = document.getElementById('level-select').value;
-    questions = shuffle([...CONFIG.data[lv]]);
+    questions = [...CONFIG.data[lv]];
     currentQIdx = 0; score = 0; seconds = 0;
     snake = [{x: 5, y: 5}, {x: 4, y: 5}, {x: 3, y: 5}];
     direction = 'RIGHT'; nextDirection = 'RIGHT';
@@ -157,10 +192,6 @@ function startGame() {
     gameTimer = setInterval(update, 1000 / CONFIG.settings.fps);
 }
 
-function shuffle(array) {
-    return array.sort(() => Math.random() - 0.5);
-}
-
 function update() {
     if(isPaused || gameState !== 'PLAYING') return;
     seconds += (1/CONFIG.settings.fps);
@@ -169,50 +200,39 @@ function update() {
     const head = {...snake[0]};
     if(direction === 'UP') head.y--; if(direction === 'DOWN') head.y++;
     if(direction === 'LEFT') head.x--; if(direction === 'RIGHT') head.x++;
+    
     if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
+        sfx.wrong();
         alert("Kết thúc! Điểm của bạn: " + score);
         location.reload();
         return;
     }
+    
     snake.unshift(head);
-    if(head.x === food.x && head.y === food.y) { showQuiz(); } else { snake.pop(); }
+    if(head.x === food.x && head.y === food.y) {
+        sfx.eat();
+        showQuiz();
+    } else {
+        snake.pop();
+    }
     draw();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#ed1c24";
-    ctx.beginPath(); 
-    ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); 
-    ctx.fill();
+    ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
 
     snake.forEach((part, i) => {
         const isHead = (i === 0);
-        const isTail = (i === snake.length - 1);
         ctx.fillStyle = isHead ? "#003a70" : "#00a8e1";
         if (isHead) {
-            ctx.beginPath();
-            ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8);
-            ctx.fill();
+            ctx.beginPath(); ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8); ctx.fill();
             ctx.fillStyle = "white";
-            const eyeSize = 2;
-            if(direction === 'RIGHT') {
-                ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, eyeSize, eyeSize);
-                ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, eyeSize, eyeSize);
-            } else if(direction === 'LEFT') {
-                ctx.fillRect(part.x*GS+3, part.y*GS+3, eyeSize, eyeSize);
-                ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, eyeSize, eyeSize);
-            } else if(direction === 'UP') {
-                ctx.fillRect(part.x*GS+3, part.y*GS+3, eyeSize, eyeSize);
-                ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, eyeSize, eyeSize);
-            } else if(direction === 'DOWN') {
-                ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, eyeSize, eyeSize);
-                ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, eyeSize, eyeSize);
-            }
-        } else if (isTail) {
-            ctx.beginPath();
-            ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2);
-            ctx.fill();
+            if(direction === 'RIGHT') { ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2); ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2); }
+            else if(direction === 'LEFT') { ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2); ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2); }
+            else if(direction === 'UP') { ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2); ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2); }
+            else if(direction === 'DOWN') { ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2); ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2); }
         } else {
             ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
         }
@@ -228,28 +248,38 @@ function setDir(d) {
 
 function showQuiz() {
     isPaused = true;
-    const q = questions[currentQIdx % questions.length];
+    // Chọn ngẫu nhiên một câu từ danh sách của cấp độ đó
+    const q = questions[Math.floor(Math.random() * questions.length)];
     document.getElementById('question-text').innerText = q.q;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
+    
     q.a.forEach((opt, i) => {
-        if(opt) {
-            const btn = document.createElement('button');
-            btn.className = 'opt-btn'; 
-            btn.innerText = (String.fromCharCode(65 + i)) + ". " + opt;
-            btn.onclick = () => {
-                if(i === q.c) { score += 10; alert("Chính xác!"); } 
-                else { if(snake.length > 1) snake.pop(); alert("Sai rồi! Đáp án đúng là: " + (String.fromCharCode(65 + q.c))); }
+        const btn = document.createElement('button');
+        btn.className = 'opt-btn'; 
+        btn.innerText = (String.fromCharCode(65 + i)) + ". " + opt;
+        btn.onclick = () => {
+            if(i === q.c) {
+                sfx.correct();
+                score += 10;
+                alert("Chính xác!");
                 nextStep();
-            };
-            container.appendChild(btn);
-        }
+            } else {
+                sfx.wrong();
+                if(snake.length > 1) snake.pop();
+                alert("Sai rồi! Hãy săn mồi để thử lại nhé.");
+                // Trả lời sai: không qua câu mới, chỉ ẩn popup để chơi tiếp
+                isPaused = false;
+                document.getElementById('quiz-overlay').classList.add('hidden');
+                spawnFood();
+            }
+        };
+        container.appendChild(btn);
     });
     document.getElementById('quiz-overlay').classList.remove('hidden');
 }
 
 function nextStep() {
-    currentQIdx++;
     document.getElementById('score').innerText = score;
     document.getElementById('quiz-overlay').classList.add('hidden');
     isPaused = false;
@@ -257,7 +287,12 @@ function nextStep() {
 }
 
 function spawnFood() {
-    food = { x: Math.floor(Math.random()*(canvas.width/GS)), y: Math.floor(Math.random()*(canvas.height/GS)) };
+    let newFood;
+    while(true) {
+        newFood = { x: Math.floor(Math.random()*(canvas.width/GS)), y: Math.floor(Math.random()*(canvas.height/GS)) };
+        if (!snake.some(s => s.x === newFood.x && s.y === newFood.y)) break;
+    }
+    food = newFood;
 }
 
 function updateTimerDisplay() {
