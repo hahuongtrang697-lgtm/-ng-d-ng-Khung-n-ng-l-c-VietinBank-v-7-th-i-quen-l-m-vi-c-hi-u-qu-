@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank Snake Game - Final Version</title>
+    <title>VietinBank Snake Game</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
@@ -26,9 +26,9 @@
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
         .ctrl-btn { width: 60px; height: 60px; background: var(--vtb-blue-dark); color: white; border: none; border-radius: 12px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
         .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
-        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 480px; border-top: 6px solid var(--vtb-red); max-height: 80vh; overflow-y: auto; }
-        .quiz-card h4 { font-size: 1rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
-        .opt-btn { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.9rem; cursor: pointer; }
+        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 480px; border-top: 6px solid var(--vtb-red); max-height: 85vh; overflow-y: auto; }
+        .quiz-card h4 { font-size: 0.95rem; margin-bottom: 15px; text-align: left; line-height: 1.5; color: var(--vtb-blue-dark); }
+        .opt-btn { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.85rem; cursor: pointer; }
         .result-msg { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
         .success { color: #28a745; } .failure { color: var(--vtb-red); }
         .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10001; }
@@ -37,7 +37,7 @@
 <body>
 
 <header>
-    <div style="font-size: 1rem; font-weight: bold;">Snake Game - VTB Training</div>
+    <div style="font-size: 1rem; font-weight: bold;">Snake Game - VietinBank</div>
     <div style="font-size: 0.85rem;">⏱ <b id="timer">00:00</b> | 🏆 <b id="score">0</b></div>
 </header>
 
@@ -46,12 +46,12 @@
 
     <div id="menu-overlay" class="overlay">
         <div class="brand-box"><h1 class="brand-text">VietinBank</h1></div>
-        <p style="max-width:350px; margin-bottom:20px;">Săn mồi để trả lời hết bộ câu hỏi về Khung năng lực và Chuẩn mực hành vi!</p>
-        <input type="text" id="student-name" placeholder="Nhập họ và tên">
+        <p style="max-width:400px; margin-bottom:20px; line-height: 1.6;">Thực hiện thử thách ứng dụng Khung năng lực VietinBank và 7 thói quen làm việc hiệu quả bằng cách điều khiển chú rắn săn mồi và khám phá câu hỏi ở mỗi miếng mồi săn được nhé!</p>
+        <input type="text" id="student-name" placeholder="Họ và tên">
         <select id="level-select">
-            <option value="easy">Cấp độ: KIẾN THỨC (Dữ liệu file)</option>
-            <option value="medium">Cấp độ: HIỂU (Biên soạn mới)</option>
-            <option value="hard">Cấp độ: VẬN DỤNG (Tình huống)</option>
+            <option value="easy">Cấp độ: Kiến thức</option>
+            <option value="medium">Cấp độ: Hiểu</option>
+            <option value="hard">Cấp độ: Vận dụng</option>
         </select>
         <button class="btn-start" id="start-trigger">BẮT ĐẦU CHƠI</button>
     </div>
@@ -90,7 +90,7 @@
 </div>
 
 <script>
-// --- AUDIO ---
+// --- ÂM THANH ---
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx; let isMuted = false;
 function initAudio() { if (!audioCtx) { audioCtx = new AudioCtx(); startBGMusic(); } }
@@ -106,25 +106,24 @@ function playTone(freq, type, duration, vol) {
     osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 
-// --- QUESTIONS BANK ---
+// --- DỮ LIỆU ---
 const BANK = {
     easy: [
         { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới và Bộ nhận diện văn hóa được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
-        { q: "Sứ mệnh VietinBank: (i)… trong phát triển đất nước trên cơ sở mang lại giá trị (ii) … cho khách hàng, đối tác...", a: ["(i)Trụ cột; (ii) Tối ưu", "(i)Tiên phong; (ii) Tốt nhất", "(i)Tiên phong; (ii) Tối ưu"], c: 2 },
-        { q: "Tầm nhìn 2030: VietinBank thuộc Top ngân hàng mạnh nhất khu vực nào?", a: ["Đông Nam Á", "Châu Á - Thái Bình Dương", "Toàn cầu"], c: 1 },
-        { q: "VietinBank luôn lấy ... làm mục tiêu phát triển trong mọi thời kỳ (Triết lý hoạt động)?", a: ["Khách hàng là trung tâm", "Phát triển con người", "Đổi mới sáng tạo", "An toàn, hiệu quả, bền vững"], c: 3 },
-        { q: "Tại VietinBank, việc xây dựng và lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Ban lãnh đạo", "Hạt nhân văn hóa", "Toàn thể CBNV"], c: 2 },
-        { q: "Theo QĐ 218, trong ứng xử cấp dưới với cấp trên, đâu là hành vi chuẩn mực?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Thẳng thắn đóng góp ý kiến", "Tất cả các hành vi trên"], c: 3 }
+        { q: "Sứ mệnh: 'Là ngân hàng (i)… trong phát triển đất nước trên cơ sở mang lại giá trị (ii) … cho khách hàng, cổ đông...'", a: ["(i)Trụ cột; (ii) Tối ưu", "(i)Tiên phong; (ii) Tốt nhất", "(i)Tiên phong; (ii) Tối ưu"], c: 2 },
+        { q: "Tầm nhìn: '...đến năm 2030 thuộc Top ngân hàng mạnh nhất Khu vực nào?'", a: ["Đông Nam Á", "Châu Á - Thái Bình Dương", "Thế giới"], c: 1 },
+        { q: "VietinBank luôn lấy ... là mục tiêu phát triển trong mọi thời kỳ (Triết lý hoạt động)?", a: ["Khách hàng là trung tâm", "Phát triển con người", "An toàn, hiệu quả, bền vững"], c: 2 },
+        { q: "Tại VietinBank, việc lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Hội đồng quản trị", "Hạt nhân văn hóa", "Toàn thể CBNV"], c: 2 },
+        { q: "Trong ứng xử cấp dưới đối với cấp trên, đâu là hành vi chuẩn mực (QĐ 218)?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Thẳng thắn, chân thành góp ý", "Tất cả các hành vi trên"], c: 3 }
     ],
     medium: [
-        { q: "Tại sao 'An toàn, hiệu quả, bền vững' lại được chọn là mục tiêu xuyên suốt thay vì chỉ tập trung vào lợi nhuận?", a: ["Để đảm bảo tăng trưởng ngắn hạn", "Để thực hiện đúng vai trò NHTM quốc gia trụ cột", "Để cạnh tranh về phí dịch vụ"], c: 1 },
-        { q: "Việc coi 'Khách hàng là trung tâm' trong mọi hoạt động có ý nghĩa gì?", a: ["Luôn đáp ứng mọi yêu cầu vô lý của khách", "Xây dựng giải pháp tài chính tối ưu dựa trên nhu cầu khách", "Chỉ tập trung vào khách hàng lớn"], c: 1 },
-        { q: "Chuẩn mực 'Thẳng thắn, chân thành đóng góp ý kiến với cấp trên' nhằm mục đích gì?", a: ["Để hạ thấp uy tín cấp trên", "Để xây dựng môi trường làm việc minh bạch, cầu thị", "Để từ chối công việc khó"], c: 1 }
+        { q: "Giá trị 'Khách hàng là trung tâm' thể hiện rõ nhất qua hành động nào?", a: ["Bán thật nhiều sản phẩm", "Lắng nghe và thiết kế giải pháp phù hợp nhu cầu khách", "Luôn đồng ý với mọi khiếu nại"], c: 1 },
+        { q: "Việc 'Chủ động xin ý kiến cấp trên' thể hiện thói quen nào trong 7 thói quen?", a: ["Luôn chủ động", "Hợp lực", "Thấu hiểu"], c: 0 },
+        { q: "Chuẩn mực 'Thẳng thắn, chân thành đóng góp ý kiến' giúp ích gì cho tổ chức?", a: ["Xây dựng sự minh bạch và cải tiến quy trình", "Để cấp trên nể sợ", "Để chứng tỏ năng lực bản thân"], c: 0 }
     ],
     hard: [
-        { q: "Tình huống: Cấp trên giao một nhiệm vụ khó và gấp. Theo chuẩn mực hành vi VTB, bạn nên làm gì?", a: ["Im lặng thực hiện dù không hiểu", "Chủ động xin ý kiến chỉ dẫn và báo cáo tiến độ thường xuyên", "Chờ đến hạn mới báo cáo là không làm được"], c: 1 },
-        { q: "Tình huống: Bạn phát hiện một quy trình hiện tại có thể gây rủi ro cho khách hàng. Giá trị cốt lõi nào cần phát huy?", a: ["Chính trực và Trách nhiệm", "Thích ứng", "Bản lĩnh"], c: 0 },
-        { q: "Tình huống: Bạn gặp một khách hàng đang phàn nàn gay gắt. Theo triết lý phụng sự, thái độ nào là đúng?", a: ["Giải thích lỗi tại quy trình", "Lắng nghe, thấu hiểu và tìm giải pháp tối ưu nhất cho khách", "Yêu cầu khách hàng bình tĩnh rồi mới làm việc"], c: 1 }
+        { q: "Tình huống: Bạn phát hiện một lỗi sai trong báo cáo của đồng nghiệp trước khi gửi sếp. Bạn nên làm gì?", a: ["Báo cáo ngay với sếp", "Im lặng để đồng nghiệp tự chịu trách nhiệm", "Trao đổi thẳng thắn với đồng nghiệp để sửa lỗi"], c: 2 },
+        { q: "Tình huống: Một dự án mới đòi hỏi kỹ năng bạn chưa có. Bạn chọn cách nào?", a: ["Từ chối nhiệm vụ", "Tự học và nhờ sự hỗ trợ từ đồng nghiệp (Hợp lực)", "Chờ người khác làm thay"], c: 1 }
     ]
 };
 
@@ -180,6 +179,8 @@ function draw() {
             ctx.fillStyle = "white"; 
             if(direction==='RIGHT') ctx.fillRect(p.x*GS+GS-5, p.y*GS+3, 2, 2), ctx.fillRect(p.x*GS+GS-5, p.y*GS+GS-5, 2, 2);
             else if(direction==='LEFT') ctx.fillRect(p.x*GS+3, p.y*GS+3, 2, 2), ctx.fillRect(p.x*GS+3, p.y*GS+GS-5, 2, 2);
+            else if(direction==='UP') ctx.fillRect(p.x*GS+3, p.y*GS+3, 2, 2), ctx.fillRect(p.x*GS+GS-5, p.y*GS+3, 2, 2);
+            else if(direction==='DOWN') ctx.fillRect(p.x*GS+3, p.y*GS+GS-5, 2, 2), ctx.fillRect(p.x*GS+GS-5, p.y*GS+GS-5, 2, 2);
         } else if(i === snake.length-1) {
             ctx.beginPath(); ctx.arc(p.x*GS+GS/2, p.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
         } else { ctx.fillRect(p.x*GS+1, p.y*GS+1, GS-2, GS-2); }
@@ -200,11 +201,11 @@ function showQuiz() {
                 playTone(523, 'sine', 0.1, 0.1); score += 10;
                 resC.innerText = "CHÍNH XÁC! 🎉"; resC.className = "result-msg success";
                 resS.innerText = "Bạn đã nắm vững kiến thức này."; currentIdx++;
-                if(currentIdx >= activeQs.length) return gameOver("Xuất sắc! Bạn đã hoàn thành bộ câu hỏi.");
+                if(currentIdx >= activeQs.length) return gameOver("Chúc mừng bạn đã hoàn thành thử thách!");
             } else {
-                playTone(150, 'sawtooth', 0.4, 0.1); if(snake.length > 2) snake.pop(); // Rắn ngắn đi
+                playTone(150, 'sawtooth', 0.4, 0.1); if(snake.length > 2) snake.pop();
                 resC.innerText = "SAI RỒI! ❌"; resC.className = "result-msg failure";
-                resS.innerText = "Rắn đã bị ngắn đi. Hãy săn mồi để thử lại câu này nhé!";
+                resS.innerText = "Rắn đã bị ngắn đi. Hãy tiếp tục săn mồi để trả lời lại nhé!";
             }
             document.getElementById('result-overlay').classList.remove('hidden');
         };
