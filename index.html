@@ -2,60 +2,75 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VietinBank: Năng Lực & Hiệu Quả</title>
     <style>
         :root {
-            --primary: #00a8e1; /* Màu thương hiệu VietinBank xanh nhạt */
-            --secondary: #003a70; /* Màu VietinBank xanh đậm */
-            --accent: #ed1c24; /* Màu đỏ điểm nhấn */
+            --primary: #00a8e1; --secondary: #003a70; --accent: #ed1c24;
             --bg: #f4f7f9; --text: #333; --success: #28a745; --error: #dc3545;
         }
-        * { box-sizing: border-box; font-family: 'Arial', sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); overflow: hidden; display: flex; flex-direction: column; height: 100vh; }
+        * { box-sizing: border-box; font-family: 'Arial', sans-serif; touch-action: manipulation; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--text); 
+            display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+        }
         
         header {
-            height: 70px; background: var(--secondary); display: flex; align-items: center; 
-            padding: 0 20px; justify-content: space-between; border-bottom: 4px solid var(--primary);
-            color: white;
+            height: 60px; background: var(--secondary); display: flex; align-items: center; 
+            padding: 0 10px; justify-content: space-between; color: white; border-bottom: 3px solid var(--primary);
         }
-        .stats { display: flex; gap: 15px; font-size: 1rem; }
-        .btn { padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-teacher { background: #6c757d; color: white; margin-left: 10px; }
+        .stats { display: flex; gap: 8px; font-size: 0.85rem; }
         
-        #game-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; background: #e0e0e0; }
-        canvas { background: white; border: 5px solid var(--secondary); box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-width: 95%; max-height: 85vh; }
-        
+        #game-container { 
+            flex: 1; position: relative; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; background: #e0e0e0; 
+        }
+        canvas { 
+            background: white; border: 3px solid var(--secondary); 
+            max-width: 95%; max-height: 70%; 
+        }
+
+        /* Bộ điều khiển cho điện thoại */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px;
+            background: #f4f7f9;
+            width: 100%;
+            justify-items: center;
+        }
+        .ctrl-btn {
+            width: 60px; height: 60px; background: var(--secondary);
+            color: white; border: none; border-radius: 50%;
+            font-size: 1.5rem; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 0 #002244;
+        }
+        .ctrl-btn:active { transform: translateY(3px); box-shadow: none; }
+        .empty { visibility: hidden; }
+
         .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 58, 112, 0.95); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 20; text-align: center; color: white; padding: 20px; }
         .hidden { display: none !important; }
         
-        .quiz-card { background: white; color: #333; padding: 30px; border-radius: 15px; max-width: 550px; width: 95%; border-top: 10px solid var(--primary); }
-        .options { display: grid; gap: 12px; margin-top: 20px; }
-        .opt-btn { padding: 15px; border: 2px solid #ddd; border-radius: 8px; background: #f8f9fa; cursor: pointer; text-align: left; font-size: 1rem; font-weight: 500; }
-        .opt-btn:hover { background: #e9ecef; border-color: var(--primary); }
+        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 15px; width: 95%; max-width: 400px; }
+        .options { display: grid; gap: 10px; margin-top: 15px; }
+        .opt-btn { padding: 12px; border: 2px solid #ddd; border-radius: 8px; background: #f8f9fa; cursor: pointer; text-align: left; font-size: 0.9rem; }
         
-        input[type="text"] { padding: 15px; width: 300px; border-radius: 8px; border: none; font-size: 1.1rem; margin-bottom: 20px; text-align: center; }
-        
-        /* Bảng điểm giáo viên */
-        #leaderboard-overlay { overflow-y: auto; padding: 40px; }
-        table { width: 100%; max-width: 800px; background: white; color: #333; border-collapse: collapse; border-radius: 10px; overflow: hidden; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
-        th { background: var(--primary); color: white; }
-        tr:nth-child(even) { background: #f2f2f2; }
+        input[type="text"] { padding: 12px; width: 80%; border-radius: 8px; border: none; font-size: 1rem; margin-bottom: 15px; }
+        .btn-start { background: var(--primary); color: white; padding: 15px 40px; border: none; border-radius: 5px; font-size: 1.1rem; font-weight: bold;}
     </style>
 </head>
 <body>
 
 <header>
     <div style="display: flex; flex-direction: column;">
-        <span style="font-size: 0.9rem; font-weight: bold; color: var(--primary);">VIETINBANK LEARNING</span>
-        <span style="font-size: 1.1rem; font-weight: bold;">Ứng dụng Khung năng lực & 7 Thói quen</span>
+        <span style="font-size: 0.7rem; font-weight: bold; color: var(--primary);">VIETINBANK</span>
+        <span style="font-size: 0.8rem; font-weight: bold;">Khung năng lực & 7 Thói quen</span>
     </div>
     <div class="stats">
-        <span>👤: <b id="display-name">...</b></span>
-        <span>⏱: <b id="timer">00:00</b></span>
-        <span>🏆: <b id="score">0</b></span>
-        <button class="btn btn-teacher" onclick="toggleTeacher()">Teacher Mode</button>
+        <span>⏱ <b id="timer">00:00</b></span>
+        <span>🏆 <b id="score">0</b></span>
+        <button onclick="toggleTeacher()" style="background:none; border:1px solid white; color:white; font-size:0.6rem; border-radius:3px;">GV</button>
     </div>
 </header>
 
@@ -63,88 +78,61 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="menu-overlay" class="overlay">
-        <h1 style="margin-bottom: 10px;">CHÀO MỪNG BẠN</h1>
-        <p style="margin-bottom: 30px;">Nhập tên để bắt đầu bài ôn tập</p>
-        <input type="text" id="student-name" placeholder="Nhập Họ và Tên của bạn..." maxlength="30">
-        <div style="margin-bottom: 30px;">
-            <select id="level-select" style="padding: 12px; border-radius: 8px; width: 300px;">
-                <option value="easy">Cấp độ: KIẾN THỨC NỀN</option>
-                <option value="medium">Cấp độ: HIỂU & VẬN DỤNG</option>
-                <option value="hard">Cấp độ: TÌNH HUỐNG THỰC TẾ</option>
-            </select>
-        </div>
-        <button class="btn" style="background: var(--primary); color: white; padding: 18px 60px; font-size: 1.2rem;" onclick="validateAndStart()">VÀO THI NGAY</button>
+        <h2>VIETINBANK GAME</h2>
+        <input type="text" id="student-name" placeholder="Nhập tên của bạn...">
+        <select id="level-select" style="padding: 10px; margin-bottom: 20px; border-radius: 5px; width: 80%;">
+            <option value="easy">Cấp độ: KIẾN THỨC</option>
+            <option value="medium">Cấp độ: HIỂU</option>
+            <option value="hard">Cấp độ: VẬN DỤNG</option>
+        </select>
+        <button class="btn-start" onclick="validateAndStart()">BẮT ĐẦU</button>
     </div>
 
     <div id="quiz-overlay" class="overlay hidden">
         <div class="quiz-card">
-            <h3 id="question-text" style="margin-top:0">...</h3>
+            <h4 id="question-text">...</h4>
             <div id="options-container" class="options"></div>
-            <p id="feedback" style="margin-top: 20px; font-weight: bold; font-size: 1.1rem;"></p>
+            <p id="feedback" style="margin-top: 10px; font-weight: bold;"></p>
         </div>
     </div>
 
     <div id="result-overlay" class="overlay hidden">
-        <h2 style="color: var(--primary);">HOÀN THÀNH BÀI THI!</h2>
-        <div style="background: white; color: #333; padding: 30px; border-radius: 15px; margin: 20px 0;">
-            <p>Chúc mừng: <b id="res-name">...</b></p>
-            <p>Điểm số đạt được: <b id="res-score" style="font-size: 2rem; color: var(--success);">0</b></p>
+        <h3 style="color: var(--primary);">KẾT THÚC!</h3>
+        <div style="background: white; color: #333; padding: 20px; border-radius: 10px; margin: 15px 0; width: 80%;">
+            <p id="res-name"></p>
+            <p>Điểm: <b id="res-score" style="font-size: 1.5rem; color: var(--success);">0</b></p>
             <p>Thời gian: <b id="res-time">0</b></p>
         </div>
-        <button class="btn" style="background: var(--secondary); color: white;" onclick="location.reload()">Làm lại</button>
-    </div>
-
-    <div id="leaderboard-overlay" class="overlay hidden">
-        <h2 style="color: white;">DANH SÁCH KẾT QUẢ CẢ LỚP</h2>
-        <table id="score-table">
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Họ và Tên</th>
-                    <th>Bộ đề</th>
-                    <th>Điểm</th>
-                    <th>Thời gian</th>
-                    <th>Ngày thi</th>
-                </tr>
-            </thead>
-            <tbody id="score-body"></tbody>
-        </table>
-        <div style="margin-top: 20px;">
-            <button class="btn" style="background: var(--error); color: white;" onclick="clearData()">Xóa tất cả dữ liệu</button>
-            <button class="btn" style="background: #ccc; margin-left: 10px;" onclick="closeTeacher()">Đóng</button>
-        </div>
+        <button onclick="location.reload()" style="padding: 10px 30px; border-radius: 5px; border:none; background:var(--secondary); color:white;">LÀM LẠI</button>
     </div>
 </div>
 
+<div class="controls">
+    <div class="empty"></div>
+    <button class="ctrl-btn" onclick="setDir('UP')">▲</button>
+    <div class="empty"></div>
+    <button class="ctrl-btn" onclick="setDir('LEFT')">◀</button>
+    <button class="ctrl-btn" onclick="setDir('DOWN')">▼</button>
+    <button class="ctrl-btn" onclick="setDir('RIGHT')">▶</button>
+</div>
+
 <script>
-// --- CONFIGURATION ---
 const CONFIG = {
-    settings: { gridSize: 20, fps: 6, teacherPass: "123" },
+    settings: { gridSize: 20, fps: 5, teacherPass: "123" },
     data: {
         easy: [
-            { q: "Năng lực nào là cốt lõi của nhân viên VietinBank?", a: ["Tin cậy", "Cá nhân", "Tự do"], c: 0 },
-            { q: "Thói quen 1 trong 7 thói quen là gì?", a: ["Luôn chủ động", "Bắt đầu với mục tiêu", "Ưu tiên việc quan trọng"], c: 0 },
-            { q: "Chữ A trong mô hình ASK nghĩa là?", a: ["Attitude (Thái độ)", "Ability (Khả năng)", "Action (Hành động)"], c: 0 },
-            { q: "VietinBank hướng tới giá trị cốt lõi nào?", a: ["Khách hàng là trung tâm", "Lợi nhuận là trên hết", "Cạnh tranh bằng mọi giá"], c: 0 },
-            { q: "Thói quen nào giúp rèn luyện bản thân mỗi ngày?", a: ["Mài lưỡi cưa", "Thấu hiểu", "Hợp lực"], c: 0 },
-            { q: "Kỹ năng giao tiếp chuyên nghiệp thuộc nhóm năng lực nào?", a: ["Năng lực hành vi", "Năng lực chuyên môn", "Năng lực quản lý"], c: 0 },
-            { q: "Sắp xếp hồ sơ khoa học thể hiện thói quen nào?", a: ["Ngăn nắp", "Ưu tiên việc quan trọng", "Tư duy cùng thắng"], c: 1 },
-            { q: "Làm việc nhóm hiệu quả dựa trên tư duy nào?", a: ["Cùng thắng (Win-Win)", "Thắng - Thua", "Tôi thắng là được"], c: 0 },
-            { q: "Đâu là một thói quen giúp làm việc hiệu quả?", a: ["Đa nhiệm xao nhãng", "Lên kế hoạch ngày", "Đi muộn về sớm"], c: 1 },
-            { q: "VietinBank đề cao tính tuân thủ trong công việc đúng hay sai?", a: ["Đúng", "Sai"], c: 0 }
+            { q: "Năng lực cốt lõi VietinBank gồm mấy giá trị?", a: ["5 giá trị", "6 giá trị", "7 giá trị"], c: 1 },
+            { q: "Thói quen 1 là gì?", a: ["Chủ động", "Hợp lực", "Thấu hiểu"], c: 0 },
+            { q: "VietinBank đề cao giá trị nào nhất?", a: ["Khách hàng là trung tâm", "Lợi nhuận", "Số lượng nhân sự"], c: 0 },
+            { q: "SMART là nguyên tắc đặt mục tiêu đúng hay sai?", a: ["Đúng", "Sai"], c: 0 },
+            { q: "Thói quen 7 'Mài lưỡi cưa' nói về việc gì?", a: ["Làm việc chăm", "Phát triển bản thân", "Tiết kiệm"], c: 1 }
         ],
         medium: [
-            { q: "Khi gặp vấn đề phát sinh tại quầy, thói quen 'Chủ động' thể hiện qua?", a: ["Chờ sếp chỉ đạo", "Tìm giải pháp hỗ trợ ngay", "Đổ lỗi cho hệ thống"], c: 1 },
-            { q: "Thói quen 'Thấu hiểu' giúp gì trong tư vấn khách hàng?", a: ["Nói nhiều hơn khách", "Nghe để hiểu nhu cầu thật", "Bán nhanh nhất có thể"], c: 1 },
-            { q: "Ma trận Eisenhower giúp phân loại việc theo?", a: ["Nhanh - Chậm", "Khẩn cấp - Quan trọng", "Dễ - Khó"], c: 1 },
-            { q: "Năng lực 'Thích ứng' giúp cán bộ VietinBank?", a: ["Sợ thay đổi", "Linh hoạt trong môi trường mới", "Chỉ làm việc cũ"], c: 1 },
-            { q: "Kết quả của thói quen 'Hợp lực' là gì?", a: ["1+1=2", "1+1 > 2", "1+1 < 2"], c: 1 }
-            // Có thể thêm thêm câu hỏi ở đây...
+            { q: "Nguyên lý 80/20 (Pareto) khuyên chúng ta?", a: ["Làm mọi việc", "Tập trung 20% việc quan trọng", "Nghỉ ngơi 80%"], c: 1 },
+            { q: "Tư duy 'Cùng thắng' (Win-Win) là thói quen số mấy?", a: ["Số 4", "Số 5", "Số 6"], c: 0 }
         ],
         hard: [
-            { q: "Theo khung năng lực VietinBank, 'Chính trực' được hiểu là?", a: ["Làm đúng cả khi không ai nhìn", "Làm đúng khi bị giám sát", "Chỉ cần không vi phạm pháp luật"], c: 0 },
-            { q: "Để mài lưỡi cưa về trí tuệ, bạn nên làm gì?", a: ["Ngủ nhiều hơn", "Học thêm kỹ năng mới", "Làm việc không nghỉ"], c: 1 }
-            // Có thể thêm thêm câu hỏi ở đây...
+            { q: "Khi khách hàng phàn nàn, thói quen 'Thấu hiểu' yêu cầu?", a: ["Giải thích ngay", "Lắng nghe chân thành", "Chuyển cấp trên"], c: 1 }
         ]
     }
 };
@@ -156,17 +144,28 @@ function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
     resize();
-    document.addEventListener('keydown', handleKeys);
+    document.addEventListener('keydown', e => {
+        if(e.key === 'ArrowUp') setDir('UP');
+        if(e.key === 'ArrowDown') setDir('DOWN');
+        if(e.key === 'ArrowLeft') setDir('LEFT');
+        if(e.key === 'ArrowRight') setDir('RIGHT');
+    });
 }
 
 function resize() {
-    canvas.width = 600; canvas.height = 400;
+    canvas.width = 300; canvas.height = 300; // Cố định kích thước vuông cho mobile dễ chơi
+}
+
+function setDir(d) {
+    if(d === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
+    if(d === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
+    if(d === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
+    if(d === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
 }
 
 function validateAndStart() {
     playerName = document.getElementById('student-name').value.trim();
-    if (!playerName) { alert("Vui lòng nhập tên của bạn!"); return; }
-    document.getElementById('display-name').innerText = playerName;
+    if (!playerName) { alert("Vui lòng nhập tên!"); return; }
     startGame();
 }
 
@@ -177,10 +176,7 @@ function startGame() {
     snake = [{x: 5, y: 5}, {x: 4, y: 5}];
     direction = 'RIGHT'; nextDirection = 'RIGHT';
     isPaused = false; gameState = 'PLAYING';
-    
     document.getElementById('menu-overlay').classList.add('hidden');
-    document.getElementById('result-overlay').classList.add('hidden');
-    
     spawnFood();
     if(gameTimer) clearInterval(gameTimer);
     gameTimer = setInterval(update, 1000 / CONFIG.settings.fps);
@@ -190,149 +186,5 @@ function update() {
     if(isPaused || gameState !== 'PLAYING') return;
     seconds += (1/CONFIG.settings.fps);
     updateTimerDisplay();
-
     direction = nextDirection;
-    const head = {...snake[0]};
-    if(direction === 'UP') head.y--;
-    if(direction === 'DOWN') head.y++;
-    if(direction === 'LEFT') head.x--;
-    if(direction === 'RIGHT') head.x++;
-
-    if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
-        endGame(); return;
-    }
-
-    snake.unshift(head);
-    if(head.x === food.x && head.y === food.y) {
-        showQuiz();
-    } else {
-        snake.pop();
-    }
-    draw();
-}
-
-function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Food
-    ctx.fillStyle = varColor('--accent');
-    ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
-
-    // Snake
-    snake.forEach((part, i) => {
-        ctx.fillStyle = i === 0 ? varColor('--secondary') : varColor('--primary');
-        ctx.beginPath();
-        ctx.roundRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2, i===0?8:4);
-        ctx.fill();
-        // Mắt cho đầu
-        if(i === 0) {
-            ctx.fillStyle = "white";
-            ctx.fillRect(part.x*GS+12, part.y*GS+4, 4, 4);
-            ctx.fillRect(part.x*GS+12, part.y*GS+12, 4, 4);
-        }
-    });
-}
-
-function showQuiz() {
-    isPaused = true;
-    const q = questions[currentQIdx];
-    document.getElementById('question-text').innerText = q.q;
-    const container = document.getElementById('options-container');
-    container.innerHTML = '';
-    document.getElementById('feedback').innerText = '';
-    
-    q.a.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'opt-btn'; btn.innerText = opt;
-        btn.onclick = () => {
-            if(i === q.c) {
-                score += 10;
-                document.getElementById('feedback').innerText = "CHÍNH XÁC! +10đ";
-                document.getElementById('feedback').style.color = "green";
-                setTimeout(nextStep, 800);
-            } else {
-                document.getElementById('feedback').innerText = "SAI RỒI! Rắn bị ngắn đi.";
-                document.getElementById('feedback').style.color = "red";
-                if(snake.length > 1) snake.pop();
-                setTimeout(nextStep, 1200);
-            }
-        };
-        container.appendChild(btn);
-    });
-    document.getElementById('quiz-overlay').classList.remove('hidden');
-}
-
-function nextStep() {
-    currentQIdx++;
-    document.getElementById('score').innerText = score;
-    document.getElementById('quiz-overlay').classList.add('hidden');
-    isPaused = false;
-    spawnFood();
-    if(currentQIdx >= questions.length) endGame();
-}
-
-function spawnFood() {
-    food = { x: Math.floor(Math.random()*(canvas.width/GS)), y: Math.floor(Math.random()*(canvas.height/GS)) };
-}
-
-function handleKeys(e) {
-    const k = e.keyCode;
-    if((k===37 || k===65) && direction!=='RIGHT') nextDirection='LEFT';
-    if((k===38 || k===87) && direction!=='DOWN') nextDirection='UP';
-    if((k===39 || k===68) && direction!=='LEFT') nextDirection='RIGHT';
-    if((k===40 || k===83) && direction!=='UP') nextDirection='DOWN';
-}
-
-function updateTimerDisplay() {
-    const m = Math.floor(seconds/60).toString().padStart(2,'0');
-    const s = Math.floor(seconds%60).toString().padStart(2,'0');
-    document.getElementById('timer').innerText = `${m}:${s}`;
-}
-
-function endGame() {
-    gameState = 'END';
-    clearInterval(gameTimer);
-    saveResult();
-    document.getElementById('result-overlay').classList.remove('hidden');
-    document.getElementById('res-name').innerText = playerName;
-    document.getElementById('res-score').innerText = score;
-    document.getElementById('res-time').innerText = document.getElementById('timer').innerText;
-}
-
-function saveResult() {
-    const results = JSON.parse(localStorage.getItem('vtbank_results') || '[]');
-    results.push({
-        name: playerName,
-        level: document.getElementById('level-select').value,
-        score: score,
-        time: document.getElementById('timer').innerText,
-        date: new Date().toLocaleString('vi-VN')
-    });
-    localStorage.setItem('vtbank_results', JSON.stringify(results));
-}
-
-function toggleTeacher() {
-    const p = prompt("Nhập mã giáo viên:");
-    if(p === CONFIG.settings.teacherPass) {
-        showLeaderboard();
-    }
-}
-
-function showLeaderboard() {
-    const results = JSON.parse(localStorage.getItem('vtbank_results') || '[]');
-    const body = document.getElementById('score-body');
-    body.innerHTML = '';
-    results.sort((a,b) => b.score - a.score).forEach((r, i) => {
-        body.innerHTML += `<tr><td>${i+1}</td><td>${r.name}</td><td>${r.level}</td><td>${r.score}</td><td>${r.time}</td><td>${r.date}</td></tr>`;
-    });
-    document.getElementById('leaderboard-overlay').classList.remove('hidden');
-}
-
-function closeTeacher() { document.getElementById('leaderboard-overlay').classList.add('hidden'); }
-function clearData() { if(confirm("Xóa sạch danh sách điểm?")) { localStorage.removeItem('vtbank_results'); showLeaderboard(); } }
-function varColor(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-init();
-</script>
-</body>
-</html>
+    const head = {...snake[0]
