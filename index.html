@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank Snake Game - Final Edition</title>
+    <title>VietinBank Snake Game</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
@@ -26,14 +26,14 @@
         .overlay { 
             position: absolute; inset: 0; background: rgba(0, 58, 112, 0.98); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 9999; color: white; padding: 20px; text-align: center;
+            z-index: 9999; color: white; padding: 25px; text-align: center;
         }
         .hidden { display: none !important; }
         
         .brand-box { background: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px; }
         .brand-text { color: var(--vtb-blue-dark); font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         
-        .intro-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; max-width: 400px; }
+        .intro-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; max-width: 350px; }
         
         input, select { padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; border: none; margin-bottom: 12px; font-size: 16px; outline: none; }
         
@@ -48,15 +48,13 @@
         .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
 
         .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10001; }
-
         .vtb-footnote { height: 8px; width: 100%; background: linear-gradient(90deg, var(--vtb-blue-dark) 0%, var(--vtb-blue-light) 50%, var(--vtb-red) 100%); flex-shrink: 0; }
         
-        /* Quiz & Result Styles */
-        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; border-top: 6px solid var(--vtb-red); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .quiz-card h4 { font-size: 1rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
-        .opt-btn { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.9rem; cursor: pointer; }
+        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; border-top: 6px solid var(--vtb-red); }
+        .quiz-card h4 { font-size: 0.95rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
+        .opt-btn { width: 100%; padding: 10px 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.85rem; cursor: pointer; }
         
-        .result-msg { font-size: 1.5rem; font-weight: bold; margin-bottom: 15px; }
+        .result-msg { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
         .success { color: #28a745; }
         .failure { color: var(--vtb-red); }
     </style>
@@ -97,7 +95,7 @@
     <div id="result-overlay" class="overlay hidden">
         <div class="quiz-card">
             <div id="result-content" class="result-msg"></div>
-            <p id="result-subtext" style="margin-bottom: 20px;"></p>
+            <p id="result-subtext" style="margin-bottom: 20px; color: #666;"></p>
             <button class="btn-start" onclick="closeResult()">TIẾP TỤC</button>
         </div>
     </div>
@@ -106,8 +104,8 @@
         <div class="brand-box">
             <h2 style="color: var(--vtb-red); margin: 0;">GAME OVER</h2>
         </div>
-        <p style="font-size: 1.2rem;">Chúc mừng bạn <b id="final-name"></b>!</p>
-        <p style="font-size: 1.5rem;">Tổng điểm: <b id="final-score" style="color: var(--vtb-blue-light);">0</b></p>
+        <p style="font-size: 1.1rem;">Người chơi: <b id="final-name"></b></p>
+        <p style="font-size: 1.4rem;">Tổng điểm đạt được: <b id="final-score" style="color: var(--vtb-blue-light);">0</b></p>
         <button class="btn-start" onclick="location.reload()">CHƠI LẠI</button>
     </div>
 </div>
@@ -125,29 +123,27 @@
 <div class="vtb-footnote"></div>
 
 <script>
-// --- AUDIO SYSTEM ---
+// --- ÂM THANH ---
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx, mainGain;
+let audioCtx;
 let isMuted = false;
 
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new AudioCtx();
-        mainGain = audioCtx.createGain();
-        mainGain.connect(audioCtx.destination);
-        startBackgroundMusic();
+        startBGMusic();
     }
 }
 
-function startBackgroundMusic() {
-    const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 440.00]; // Đồ Rê Mi Fa Sol La
-    let step = 0;
+function startBGMusic() {
+    const melody = [329.63, 392.00, 440.00, 349.23, 329.63, 293.66]; 
+    let i = 0;
     setInterval(() => {
         if (!isMuted && gameState === 'PLAYING' && !isPaused) {
-            playTone(notes[step % notes.length], 'triangle', 0.2, 0.03);
-            step++;
+            playTone(melody[i % melody.length], 'triangle', 0.2, 0.02);
+            i++;
         }
-    }, 400);
+    }, 500);
 }
 
 function playTone(freq, type, duration, vol) {
@@ -166,23 +162,24 @@ const sfx = {
     eat: () => playTone(800, 'sine', 0.1, 0.1),
     correct: () => { playTone(523, 'sine', 0.1, 0.1); setTimeout(() => playTone(659, 'sine', 0.2, 0.1), 100); },
     wrong: () => playTone(150, 'sawtooth', 0.4, 0.1),
-    over: () => { playTone(200, 'square', 0.3, 0.1); setTimeout(() => playTone(100, 'square', 0.5, 0.1), 200); }
+    over: () => playTone(100, 'square', 0.6, 0.1)
 };
 
-// --- GAME LOGIC ---
+// --- DỮ LIỆU CÂU HỎI ---
 const CONFIG = {
     settings: { gridSize: 15, fps: 5 },
     data: {
         easy: [
-            { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới được ban hành khi nào?", a: ["Năm 2021", "Năm 2022", "Năm 2023"], c: 2 },
-            { q: "VietinBank luôn lấy khách hàng là...?", a: ["Người trả lương", "Trung tâm", "Bạn đồng hành"], c: 1 },
-            { q: "Sứ mệnh VTB là mang lại giá trị ... cho khách hàng?", a: ["Tốt nhất", "Tối ưu", "Cao nhất"], c: 1 }
+            { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới và Bộ nhận diện văn hóa được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
+            { q: "Điền vào dấu …: 'Là ngân hàng (i)… trong phát triển đất nước trên cơ sở mang lại giá trị (ii) … cho khách hàng, cổ đông...'", a: ["(i)Trụ cột; (ii) Tối ưu", "(i)Tiên phong; (ii) Tốt nhất", "(i)Tiên phong; (ii) Tối ưu"], c: 2 },
+            { q: "VietinBank luôn lấy ... là mục tiêu phát triển trong mọi thời kỳ?", a: ["Khách hàng là trung tâm", "Phát triển con người", "Đổi mới sáng tạo", "An toàn, hiệu quả, bền vững"], c: 3 },
+            { q: "Tại VietinBank, việc lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Hội đồng quản trị", "Ban Điều hành", "Toàn thể CBNV"], c: 2 }
         ],
         medium: [
-            { q: "Đâu là thói quen số 1 trong 7 thói quen hiệu quả?", a: ["Hợp lực", "Luôn chủ động", "Thấu hiểu"], c: 1 }
+            { q: "Trong ứng xử cấp dưới đối với cấp trên, đâu là hành vi đúng chuẩn mực?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Thẳng thắn, chân thành đóng góp ý kiến", "Tất cả các phương án trên"], c: 3 }
         ],
         hard: [
-            { q: "Giá trị cốt lõi nào đứng đầu trong Khung năng lực?", a: ["Chính trực", "Tận tâm", "Sáng tạo"], c: 0 }
+            { q: "Đâu là những giá trị cốt lõi của VietinBank?", a: ["Chính trực-Bản lĩnh-Sáng tạo-Tận tâm-Thích ứng", "Chính trực-Trách nhiệm-Sáng tạo-Tận tâm-Thích ứng"], c: 0 }
         ]
     }
 };
@@ -210,7 +207,7 @@ function init() {
 function validateAndStart() {
     initAudio();
     playerName = document.getElementById('student-name').value.trim();
-    if (!playerName) { alert("Vui lòng nhập tên!"); return; }
+    if (!playerName) { alert("Vui lòng nhập họ tên!"); return; }
     startGame();
 }
 
@@ -236,7 +233,6 @@ function update() {
     if(direction === 'UP') head.y--; if(direction === 'DOWN') head.y++;
     if(direction === 'LEFT') head.x--; if(direction === 'RIGHT') head.x++;
     
-    // Kiểm tra đâm tường hoặc đâm thân
     if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
         gameOver();
         return;
@@ -263,14 +259,31 @@ function gameOver() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Mồi
     ctx.fillStyle = "#ed1c24";
     ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
 
+    // Rắn hình dạng đặc biệt
     snake.forEach((part, i) => {
         const isHead = (i === 0);
+        const isTail = (i === snake.length - 1);
         ctx.fillStyle = isHead ? "#003a70" : "#00a8e1";
+        
         if (isHead) {
             ctx.beginPath(); ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8); ctx.fill();
+            // Mắt
+            ctx.fillStyle = "white";
+            const eyeS = 2;
+            if(direction === 'RIGHT' || direction === 'LEFT') {
+                ctx.fillRect(part.x*GS+(direction==='RIGHT'?GS-5:3), part.y*GS+3, eyeS, eyeS);
+                ctx.fillRect(part.x*GS+(direction==='RIGHT'?GS-5:3), part.y*GS+GS-5, eyeS, eyeS);
+            } else {
+                ctx.fillRect(part.x*GS+3, part.y*GS+(direction==='DOWN'?GS-5:3), eyeS, eyeS);
+                ctx.fillRect(part.x*GS+GS-5, part.y*GS+(direction==='DOWN'?GS-5:3), eyeS, eyeS);
+            }
+        } else if (isTail) {
+            ctx.beginPath(); ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
         } else {
             ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
         }
@@ -299,19 +312,14 @@ function showQuiz() {
             document.getElementById('quiz-overlay').classList.add('hidden');
             const resContent = document.getElementById('result-content');
             const resSub = document.getElementById('result-subtext');
-            
             if(i === q.c) {
-                sfx.correct();
-                score += 10;
-                resContent.innerText = "CHÍNH XÁC! 🎉";
-                resContent.className = "result-msg success";
-                resSub.innerText = "Bạn đã nhận được 10 điểm. Hãy tiếp tục săn mồi nhé!";
+                sfx.correct(); score += 10;
+                resContent.innerText = "CHÍNH XÁC! 🎉"; resContent.className = "result-msg success";
+                resSub.innerText = "Bạn giỏi lắm, +10 điểm. Tiếp tục săn mồi nhé!";
             } else {
-                sfx.wrong();
-                if(snake.length > 1) snake.pop();
-                resContent.innerText = "SAI RỒI! ❌";
-                resContent.className = "result-msg failure";
-                resSub.innerText = "Rắn bị ngắn lại. Hãy săn mồi để thử lại câu hỏi này nhé!";
+                sfx.wrong(); if(snake.length > 1) snake.pop();
+                resContent.innerText = "SAI RỒI! ❌"; resContent.className = "result-msg failure";
+                resSub.innerText = "Rắn đã bị ngắn lại. Hãy săn mồi để thử lại câu trả lời nhé!";
             }
             document.getElementById('result-overlay').classList.remove('hidden');
         };
