@@ -30,22 +30,9 @@
         }
         .hidden { display: none !important; }
         
-        /* Chữ VietinBank thẳng, không nghiêng */
-        .brand-box { 
-            background: white; 
-            padding: 15px 30px; 
-            border-radius: 8px; 
-            margin-bottom: 20px; 
-        }
-        .brand-text { 
-            color: var(--vtb-blue-dark); 
-            font-size: 2rem; 
-            font-weight: 800; 
-            margin: 0;
-            letter-spacing: -0.5px;
-        }
+        .brand-box { background: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px; }
+        .brand-text { color: var(--vtb-blue-dark); font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
         
-        /* Câu giới thiệu giữ nguyên văn bản của người dùng */
         .intro-text { font-size: 0.95rem; line-height: 1.6; margin-bottom: 25px; color: #e0f2ff; max-width: 350px; }
         
         input, select { padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; border: none; margin-bottom: 12px; font-size: 16px; outline: none; }
@@ -112,7 +99,6 @@
 <div class="vtb-footnote"></div>
 
 <script>
-// Giữ nguyên logic game ổn định
 const CONFIG = {
     settings: { gridSize: 15, fps: 5 },
     data: {
@@ -182,12 +168,50 @@ function update() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Vẽ mồi
     ctx.fillStyle = "#ed1c24";
-    ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); 
+    ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); 
+    ctx.fill();
+
+    // Vẽ rắn có hình dạng đặc biệt
     snake.forEach((part, i) => {
         const isHead = (i === 0);
+        const isTail = (i === snake.length - 1);
+        
         ctx.fillStyle = isHead ? "#003a70" : "#00a8e1";
-        ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
+        
+        if (isHead) {
+            // Vẽ đầu rắn bo tròn
+            ctx.beginPath();
+            ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8);
+            ctx.fill();
+            
+            // Vẽ mắt
+            ctx.fillStyle = "white";
+            if(direction === 'RIGHT') {
+                ctx.fillRect(part.x*GS+GS-6, part.y*GS+3, 3, 3);
+                ctx.fillRect(part.x*GS+GS-6, part.y*GS+GS-6, 3, 3);
+            } else if(direction === 'LEFT') {
+                ctx.fillRect(part.x*GS+3, part.y*GS+3, 3, 3);
+                ctx.fillRect(part.x*GS+3, part.y*GS+GS-6, 3, 3);
+            } else if(direction === 'UP') {
+                ctx.fillRect(part.x*GS+3, part.y*GS+3, 3, 3);
+                ctx.fillRect(part.x*GS+GS-6, part.y*GS+3, 3, 3);
+            } else if(direction === 'DOWN') {
+                ctx.fillRect(part.x*GS+3, part.y*GS+GS-6, 3, 3);
+                ctx.fillRect(part.x*GS+GS-6, part.y*GS+GS-6, 3, 3);
+            }
+        } else if (isTail) {
+            // Vẽ đuôi nhỏ dần
+            ctx.beginPath();
+            ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2);
+            ctx.fill();
+        } else {
+            // Vẽ thân rắn
+            ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
+        }
     });
 }
 
