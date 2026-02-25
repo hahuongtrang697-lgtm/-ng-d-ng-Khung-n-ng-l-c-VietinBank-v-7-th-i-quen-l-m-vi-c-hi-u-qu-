@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank Snake Game</title>
+    <title>VietinBank Snake Game - Final</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
@@ -50,7 +50,7 @@
         .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10001; }
         .vtb-footnote { height: 8px; width: 100%; background: linear-gradient(90deg, var(--vtb-blue-dark) 0%, var(--vtb-blue-light) 50%, var(--vtb-red) 100%); flex-shrink: 0; }
         
-        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; border-top: 6px solid var(--vtb-red); }
+        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; border-top: 6px solid var(--vtb-red); max-height: 80vh; overflow-y: auto; }
         .quiz-card h4 { font-size: 0.95rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
         .opt-btn { width: 100%; padding: 10px 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.85rem; cursor: pointer; }
         
@@ -74,7 +74,7 @@
              <h1 class="brand-text">VietinBank</h1>
         </div>
         <p class="intro-text">
-            Thực hiện thử thách ứng dụng Khung năng lực VietinBank và 7 thói quen làm việc hiệu quả bằng cách điều khiển chú rắn săn mồi và khám phá câu hỏi ở mỗi miếng mồi săn được nhé
+            Khám phá Khung năng lực VietinBank và 7 thói quen làm việc hiệu quả. Hãy săn mồi và trả lời hết bộ câu hỏi để chiến thắng!
         </p>
         <input type="text" id="student-name" placeholder="Họ và tên">
         <select id="level-select">
@@ -96,16 +96,16 @@
         <div class="quiz-card">
             <div id="result-content" class="result-msg"></div>
             <p id="result-subtext" style="margin-bottom: 20px; color: #666;"></p>
-            <button class="btn-start" onclick="closeResult()">TIẾP TỤC</button>
+            <button class="btn-start" id="result-btn" onclick="closeResult()">TIẾP TỤC</button>
         </div>
     </div>
 
     <div id="gameover-overlay" class="overlay hidden">
         <div class="brand-box">
-            <h2 style="color: var(--vtb-red); margin: 0;">GAME OVER</h2>
+            <h2 id="over-title" style="color: var(--vtb-red); margin: 0;">GAME OVER</h2>
         </div>
-        <p style="font-size: 1.1rem;">Người chơi: <b id="final-name"></b></p>
-        <p style="font-size: 1.4rem;">Tổng điểm đạt được: <b id="final-score" style="color: var(--vtb-blue-light);">0</b></p>
+        <p id="over-desc" style="font-size: 1.1rem;"></p>
+        <p style="font-size: 1.4rem;">Tổng điểm: <b id="final-score" style="color: var(--vtb-blue-light);">0</b></p>
         <button class="btn-start" onclick="location.reload()">CHƠI LẠI</button>
     </div>
 </div>
@@ -123,7 +123,7 @@
 <div class="vtb-footnote"></div>
 
 <script>
-// --- ÂM THANH ---
+// --- AUDIO SYSTEM ---
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
 let isMuted = false;
@@ -136,14 +136,14 @@ function initAudio() {
 }
 
 function startBGMusic() {
-    const melody = [329.63, 392.00, 440.00, 349.23, 329.63, 293.66]; 
+    const melody = [261, 329, 392, 523, 392, 329]; 
     let i = 0;
     setInterval(() => {
         if (!isMuted && gameState === 'PLAYING' && !isPaused) {
-            playTone(melody[i % melody.length], 'triangle', 0.2, 0.02);
+            playTone(melody[i % melody.length], 'triangle', 0.15, 0.02);
             i++;
         }
-    }, 500);
+    }, 450);
 }
 
 function playTone(freq, type, duration, vol) {
@@ -165,27 +165,25 @@ const sfx = {
     over: () => playTone(100, 'square', 0.6, 0.1)
 };
 
-// --- DỮ LIỆU CÂU HỎI ---
-const CONFIG = {
-    settings: { gridSize: 15, fps: 5 },
-    data: {
-        easy: [
-            { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới và Bộ nhận diện văn hóa được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
-            { q: "Điền vào dấu …: 'Là ngân hàng (i)… trong phát triển đất nước trên cơ sở mang lại giá trị (ii) … cho khách hàng, cổ đông...'", a: ["(i)Trụ cột; (ii) Tối ưu", "(i)Tiên phong; (ii) Tốt nhất", "(i)Tiên phong; (ii) Tối ưu"], c: 2 },
-            { q: "VietinBank luôn lấy ... là mục tiêu phát triển trong mọi thời kỳ?", a: ["Khách hàng là trung tâm", "Phát triển con người", "Đổi mới sáng tạo", "An toàn, hiệu quả, bền vững"], c: 3 },
-            { q: "Tại VietinBank, việc lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Hội đồng quản trị", "Ban Điều hành", "Toàn thể CBNV"], c: 2 }
-        ],
-        medium: [
-            { q: "Trong ứng xử cấp dưới đối với cấp trên, đâu là hành vi đúng chuẩn mực?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Thẳng thắn, chân thành đóng góp ý kiến", "Tất cả các phương án trên"], c: 3 }
-        ],
-        hard: [
-            { q: "Đâu là những giá trị cốt lõi của VietinBank?", a: ["Chính trực-Bản lĩnh-Sáng tạo-Tận tâm-Thích ứng", "Chính trực-Trách nhiệm-Sáng tạo-Tận tâm-Thích ứng"], c: 0 }
-        ]
-    }
+// --- DATA CÂU HỎI TỪ FILE ---
+const QUESTIONS_BANK = {
+    easy: [
+        { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
+        { q: "Sứ mệnh của VietinBank mang lại giá trị gì cho khách hàng, cổ đông...?", a: ["Giá trị tối ưu", "Giá trị tuyệt đối", "Giá trị cao nhất"], c: 0 },
+        { q: "VietinBank lấy mục tiêu gì làm định hướng phát triển trong mọi thời kỳ?", a: ["Lợi nhuận cao nhất", "An toàn, hiệu quả, bền vững", "Mở rộng quy mô"], c: 1 },
+        { q: "Việc xây dựng và lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Ban Lãnh đạo", "Phòng Nhân sự", "Toàn thể CBNV"], c: 2 },
+        { q: "Triết lý hoạt động của VietinBank khẳng định khách hàng là gì?", a: ["Người trả lương", "Trung tâm", "Bạn đồng hành"], c: 1 }
+    ],
+    medium: [
+        { q: "Trong ứng xử cấp dưới với cấp trên, chuẩn mực nào sau đây là đúng?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Chân thành đóng góp ý kiến", "Tất cả các hành vi trên"], c: 3 }
+    ],
+    hard: [
+        { q: "Đâu là danh sách các giá trị cốt lõi của VietinBank?", a: ["Chính trực-Bản lĩnh-Sáng tạo-Tận tâm-Thích ứng", "Chính trực-Trách nhiệm-Sáng tạo-Tận tâm-Thích ứng"], c: 0 }
+    ]
 };
 
-let canvas, ctx, snake, food, direction, nextDirection, score, gameTimer, seconds, questions, isPaused, gameState, playerName;
-const GS = CONFIG.settings.gridSize;
+let canvas, ctx, snake, food, direction, nextDirection, score, gameTimer, seconds, activeQuestions, currentQIdx, isPaused, gameState, playerName;
+const GS = 15;
 
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('start-trigger').addEventListener('click', validateAndStart);
@@ -207,26 +205,31 @@ function init() {
 function validateAndStart() {
     initAudio();
     playerName = document.getElementById('student-name').value.trim();
-    if (!playerName) { alert("Vui lòng nhập họ tên!"); return; }
+    if (!playerName) { alert("Vui lòng nhập tên!"); return; }
     startGame();
 }
 
 function startGame() {
     const lv = document.getElementById('level-select').value;
-    questions = [...CONFIG.data[lv]];
-    score = 0; seconds = 0;
+    // Lấy câu hỏi và xáo trộn
+    activeQuestions = shuffle([...QUESTIONS_BANK[lv]]);
+    currentQIdx = 0; score = 0; seconds = 0;
     snake = [{x: 5, y: 5}, {x: 4, y: 5}, {x: 3, y: 5}];
     direction = 'RIGHT'; nextDirection = 'RIGHT';
     gameState = 'PLAYING'; isPaused = false;
     document.getElementById('menu-overlay').classList.add('hidden');
     spawnFood();
     if(gameTimer) clearInterval(gameTimer);
-    gameTimer = setInterval(update, 1000 / CONFIG.settings.fps);
+    gameTimer = setInterval(update, 200);
+}
+
+function shuffle(arr) {
+    return arr.sort(() => Math.random() - 0.5);
 }
 
 function update() {
     if(isPaused || gameState !== 'PLAYING') return;
-    seconds += (1/CONFIG.settings.fps);
+    seconds += 0.2;
     updateTimerDisplay();
     direction = nextDirection;
     const head = {...snake[0]};
@@ -234,7 +237,7 @@ function update() {
     if(direction === 'LEFT') head.x--; if(direction === 'RIGHT') head.x++;
     
     if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
-        gameOver();
+        gameOver("Bạn đã va chạm!");
         return;
     }
     
@@ -248,40 +251,22 @@ function update() {
     draw();
 }
 
-function gameOver() {
-    gameState = 'OVER';
-    clearInterval(gameTimer);
-    sfx.over();
-    document.getElementById('final-name').innerText = playerName;
-    document.getElementById('final-score').innerText = score;
-    document.getElementById('gameover-overlay').classList.remove('hidden');
-}
-
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Mồi
     ctx.fillStyle = "#ed1c24";
     ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
 
-    // Rắn hình dạng đặc biệt
     snake.forEach((part, i) => {
         const isHead = (i === 0);
         const isTail = (i === snake.length - 1);
         ctx.fillStyle = isHead ? "#003a70" : "#00a8e1";
-        
         if (isHead) {
             ctx.beginPath(); ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8); ctx.fill();
-            // Mắt
             ctx.fillStyle = "white";
-            const eyeS = 2;
-            if(direction === 'RIGHT' || direction === 'LEFT') {
-                ctx.fillRect(part.x*GS+(direction==='RIGHT'?GS-5:3), part.y*GS+3, eyeS, eyeS);
-                ctx.fillRect(part.x*GS+(direction==='RIGHT'?GS-5:3), part.y*GS+GS-5, eyeS, eyeS);
-            } else {
-                ctx.fillRect(part.x*GS+3, part.y*GS+(direction==='DOWN'?GS-5:3), eyeS, eyeS);
-                ctx.fillRect(part.x*GS+GS-5, part.y*GS+(direction==='DOWN'?GS-5:3), eyeS, eyeS);
-            }
+            if(direction==='RIGHT') ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2);
+            else if(direction==='LEFT') ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2);
+            else if(direction==='UP') ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2);
+            else if(direction==='DOWN') ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2);
         } else if (isTail) {
             ctx.beginPath(); ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
         } else {
@@ -290,36 +275,35 @@ function draw() {
     });
 }
 
-function setDir(d) {
-    if(d === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
-    if(d === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
-    if(d === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
-    if(d === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
-}
-
 function showQuiz() {
     isPaused = true;
-    const q = questions[Math.floor(Math.random() * questions.length)];
-    document.getElementById('question-text').innerText = q.q;
+    const q = activeQuestions[currentQIdx];
+    document.getElementById('question-text').innerText = `Câu ${currentQIdx + 1}/${activeQuestions.length}: ${q.q}`;
     const container = document.getElementById('options-container');
     container.innerHTML = '';
     
     q.a.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'opt-btn'; 
-        btn.innerText = (String.fromCharCode(65 + i)) + ". " + opt;
+        btn.innerText = String.fromCharCode(65 + i) + ". " + opt;
         btn.onclick = () => {
             document.getElementById('quiz-overlay').classList.add('hidden');
             const resContent = document.getElementById('result-content');
             const resSub = document.getElementById('result-subtext');
             if(i === q.c) {
                 sfx.correct(); score += 10;
-                resContent.innerText = "CHÍNH XÁC! 🎉"; resContent.className = "result-msg success";
-                resSub.innerText = "Bạn giỏi lắm, +10 điểm. Tiếp tục săn mồi nhé!";
+                resContent.innerText = "CHÍNH XÁC! 🎉";
+                resContent.className = "result-msg success";
+                resSub.innerText = "Chúc mừng bạn đã trả lời đúng.";
+                currentQIdx++; // Chuyển sang câu tiếp theo
+                if(currentQIdx >= activeQuestions.length) {
+                    document.getElementById('result-btn').onclick = () => gameOver("Chúc mừng bạn đã hoàn thành bộ câu hỏi!");
+                }
             } else {
                 sfx.wrong(); if(snake.length > 1) snake.pop();
-                resContent.innerText = "SAI RỒI! ❌"; resContent.className = "result-msg failure";
-                resSub.innerText = "Rắn đã bị ngắn lại. Hãy săn mồi để thử lại câu trả lời nhé!";
+                resContent.innerText = "SAI RỒI! ❌";
+                resContent.className = "result-msg failure";
+                resSub.innerText = "Hãy săn mồi để thử lại câu hỏi này nhé!";
             }
             document.getElementById('result-overlay').classList.remove('hidden');
         };
@@ -335,6 +319,23 @@ function closeResult() {
     spawnFood();
 }
 
+function gameOver(msg) {
+    gameState = 'OVER';
+    clearInterval(gameTimer);
+    sfx.over();
+    document.getElementById('over-title').innerText = msg.includes("hoàn thành") ? "CHIẾN THẮNG!" : "GAME OVER";
+    document.getElementById('over-desc').innerText = `${playerName}, ${msg}`;
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('gameover-overlay').classList.remove('hidden');
+}
+
+function setDir(d) {
+    if(d === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
+    if(d === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
+    if(d === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
+    if(d === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
+}
+
 function spawnFood() {
     let newFood;
     while(true) {
@@ -345,8 +346,8 @@ function spawnFood() {
 }
 
 function updateTimerDisplay() {
-    const s = Math.floor(seconds%60).toString().padStart(2,'0');
     const m = Math.floor(seconds/60).toString().padStart(2,'0');
+    const s = Math.floor(seconds%60).toString().padStart(2,'0');
     document.getElementById('timer').innerText = `${m}:${s}`;
 }
 </script>
