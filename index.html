@@ -3,28 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank - Khung năng lực & 7 Thói quen</title>
+    <title>VietinBank Game</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
             --vtb-blue-light: #00a8e1; 
             --vtb-red: #ed1c24;
-            --bg: #f0f4f7; 
+            --bg-gradient: linear-gradient(180deg, #f0f4f7 0%, #d1d9e0 100%);
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; touch-action: manipulation; }
-        body { margin: 0; background: var(--bg); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { margin: 0; background: var(--bg-gradient); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
         header { 
             height: 55px; background: var(--vtb-blue-dark); color: white; 
             display: flex; align-items: center; padding: 0 15px; 
-            justify-content: space-between; border-bottom: 3px solid var(--vtb-blue-light);
-            flex-shrink: 0;
+            justify-content: space-between; border-bottom: 3px solid var(--vtb-blue-light); flex-shrink: 0;
         }
         
-        #game-container { flex: 1; position: relative; background: #d1d9e0; display: flex; justify-content: center; align-items: center; }
-        canvas { background: white; border: 2px solid var(--vtb-blue-dark); border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 95%; height: auto; }
+        #game-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 5px; }
+        canvas { background: white; border: 2px solid var(--vtb-blue-dark); border-radius: 4px; display: block; }
         
-        /* Lớp phủ mở đầu & Quiz */
         .overlay { 
             position: absolute; inset: 0; background: rgba(0, 58, 112, 0.98); 
             display: flex; flex-direction: column; justify-content: center; align-items: center; 
@@ -32,69 +30,44 @@
         }
         .hidden { display: none !important; }
         
-        .intro-text { font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; }
-        input, select { 
-            padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; 
-            border: 2px solid var(--vtb-blue-light); margin-bottom: 12px; font-size: 16px;
-        }
+        .intro-text { font-size: 0.9rem; line-height: 1.4; margin-bottom: 20px; color: #e0f2ff; }
+        input, select { padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; border: 2px solid var(--vtb-blue-light); margin-bottom: 12px; font-size: 16px; outline: none; }
         
         .btn-start { 
-            background: var(--vtb-red); color: white; padding: 18px 50px; border: none; border-radius: 50px; 
+            background: var(--vtb-red); color: white; padding: 15px 40px; border: none; border-radius: 50px; 
             font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #b31217;
         }
-        .btn-start:active { transform: translateY(2px); box-shadow: none; }
-        
-        /* Bộ điều khiển cụm mũi tên gần nhau */
-        .controls-wrapper {
-            background: #ffffff; padding: 20px 0; border-top: 1px solid #ddd; flex-shrink: 0;
-            display: flex; justify-content: center; align-items: center;
-        }
-        .d-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 65px);
-            grid-template-rows: repeat(2, 65px);
-            gap: 8px;
-        }
-        .ctrl-btn { 
-            width: 65px; height: 65px; background: var(--vtb-blue-dark); color: white; 
-            border: none; border-radius: 12px; font-size: 1.6rem;
-            display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 0 #002244;
-        }
-        .ctrl-btn:active { background: var(--vtb-blue-light); transform: translateY(2px); box-shadow: none; }
-        .up { grid-column: 2; }
-        .left { grid-column: 1; grid-row: 2; }
-        .down { grid-column: 2; grid-row: 2; }
-        .right { grid-column: 3; grid-row: 2; }
 
+        .controls-wrapper { background: #fff; padding: 10px 0; border-top: 1px solid #ddd; flex-shrink: 0; display: flex; justify-content: center; }
+        .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
+        .ctrl-btn { width: 60px; height: 60px; background: var(--vtb-blue-dark); color: white; border: none; border-radius: 12px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
+        .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
+
+        .vtb-footnote { height: 8px; width: 100%; background: linear-gradient(90deg, var(--vtb-blue-dark) 0%, var(--vtb-blue-light) 50%, var(--vtb-red) 100%); flex-shrink: 0; }
+        
         .quiz-card { background: white; color: #333; padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; border-top: 8px solid var(--vtb-red); }
-        .opt-btn { 
-            width: 100%; padding: 14px; margin-top: 10px; border: 1px solid #ddd; 
-            border-radius: 8px; text-align: left; background: #f9f9f9; font-weight: 500;
-        }
+        .opt-btn { width: 100%; padding: 12px; margin-top: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: left; background: #f9f9f9; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="line-height: 1.2;">
-        <div style="font-size: 0.65rem; color: var(--vtb-blue-light); font-weight: bold;">VIETINBANK</div>
-        <div style="font-size: 0.85rem; font-weight: bold;">Snake Quiz</div>
+    <div style="height: 30px;">
+        <img src="https://www.vietinbank.vn/web/images/logo-vietinbank.png" alt="Logo" style="height: 100%; filter: brightness(0) invert(1);">
     </div>
-    <div style="font-size: 0.85rem;">⏱ <b id="timer">00:00</b> | 🏆 <b id="score">0</b></div>
+    <div style="font-size: 0.8rem;">⏱ <b id="timer">00:00</b> | 🏆 <b id="score">0</b></div>
 </header>
 
 <div id="game-container">
     <canvas id="gameCanvas"></canvas>
-
     <div id="menu-overlay" class="overlay">
-        <div style="background: white; padding: 5px; border-radius: 5px; margin-bottom: 15px;">
-             <div style="color:var(--vtb-blue-dark); font-weight: bold; font-size: 1.2rem; padding: 5px 10px;">VietinBank</div>
+        <div style="background: white; padding: 10px; border-radius: 5px; margin-bottom: 15px; width: 200px;">
+             <img src="https://www.vietinbank.vn/web/images/logo-vietinbank.png" alt="Logo" style="width: 100%;">
         </div>
         <p class="intro-text">
             Thực hiện thử thách ứng dụng <b>Khung năng lực VietinBank</b> và <b>7 thói quen làm việc hiệu quả</b> bằng cách điều khiển chú rắn săn mồi và khám phá câu hỏi ở mỗi miếng mồi săn được nhé!
         </p>
-        <input type="text" id="student-name" placeholder="Họ và tên học sinh...">
+        <input type="text" id="student-name" placeholder="Họ và tên">
         <select id="level-select">
             <option value="easy">Cấp độ: KIẾN THỨC</option>
             <option value="medium">Cấp độ: HIỂU</option>
@@ -102,7 +75,6 @@
         </select>
         <button class="btn-start" id="start-trigger">BẮT ĐẦU CHƠI</button>
     </div>
-
     <div id="quiz-overlay" class="overlay hidden">
         <div class="quiz-card">
             <h4 id="question-text" style="margin-top:0; color: var(--vtb-blue-dark);">...</h4>
@@ -119,6 +91,7 @@
         <button class="ctrl-btn right" ontouchstart="setDir('RIGHT')" onmousedown="setDir('RIGHT')">▶</button>
     </div>
 </div>
+<div class="vtb-footnote"></div>
 
 <script>
 const CONFIG = {
@@ -127,17 +100,10 @@ const CONFIG = {
         easy: [
             { q: "Năng lực cốt lõi VietinBank có mấy giá trị?", a: ["5 giá trị", "6 giá trị", "7 giá trị"], c: 1 },
             { q: "Thói quen 1 trong 7 thói quen hiệu quả là gì?", a: ["Luôn chủ động", "Hợp lực", "Thấu hiểu"], c: 0 },
-            { q: "VietinBank đề cao giá trị: Khách hàng là...?", a: ["Người trả lương", "Trung tâm", "Người thân"], c: 1 },
-            { q: "Chữ S trong mục tiêu SMART nghĩa là gì?", a: ["Cụ thể", "Đo lường", "Khả thi"], c: 0 },
-            { q: "Kỹ năng làm việc nhóm thuộc năng lực nào?", a: ["Năng lực chuyên môn", "Năng lực hành vi", "Năng lực lãnh đạo"], c: 1 }
+            { q: "VietinBank lấy khách hàng là...?", a: ["Người trả lương", "Trung tâm", "Người thân"], c: 1 }
         ],
-        medium: [
-            { q: "Ma trận Eisenhower giúp chúng ta phân loại công việc theo?", a: ["Dễ và Khó", "Khẩn cấp và Quan trọng", "Nhanh và Chậm"], c: 1 },
-            { q: "Tư duy 'Cùng thắng' (Win-Win) là thói quen số mấy?", a: ["Số 4", "Số 5", "Số 6"], c: 0 }
-        ],
-        hard: [
-            { q: "Để thực hiện tốt thói quen 'Thấu hiểu', bạn cần làm gì?", a: ["Ngắt lời khách hàng", "Lắng nghe chân thành", "Nói nhanh các giải pháp"], c: 1 }
-        ]
+        medium: [{ q: "Tư duy 'Cùng thắng' là thói quen số mấy?", a: ["4", "5", "6"], c: 0 }],
+        hard: [{ q: "Để 'Thấu hiểu', bạn cần làm gì?", a: ["Nói nhanh", "Lắng nghe chân thành", "Chỉ làm việc cũ"], c: 1 }]
     }
 };
 
@@ -146,19 +112,17 @@ const GS = CONFIG.settings.gridSize;
 
 document.addEventListener('DOMContentLoaded', () => {
     const btn = document.getElementById('start-trigger');
-    const startFunc = (e) => {
-        e.preventDefault();
-        validateAndStart();
-    };
-    btn.addEventListener('touchstart', startFunc, {passive: false});
-    btn.addEventListener('click', startFunc);
+    btn.addEventListener('touchstart', (e) => { e.preventDefault(); validateAndStart(); });
+    btn.addEventListener('click', (e) => { e.preventDefault(); validateAndStart(); });
     init();
 });
 
 function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
-    canvas.width = 300; canvas.height = 300;
+    const containerWidth = document.getElementById('game-container').clientWidth - 10;
+    canvas.width = Math.floor(containerWidth / GS) * GS;
+    canvas.height = canvas.width;
 }
 
 function validateAndStart() {
@@ -172,7 +136,7 @@ function startGame() {
     const lv = document.getElementById('level-select').value;
     questions = [...CONFIG.data[lv]];
     currentQIdx = 0; score = 0; seconds = 0;
-    snake = [{x: 5, y: 5}, {x: 4, y: 5}];
+    snake = [{x: 5, y: 5}, {x: 4, y: 5}, {x: 3, y: 5}];
     direction = 'RIGHT'; nextDirection = 'RIGHT';
     gameState = 'PLAYING'; isPaused = false;
     document.getElementById('menu-overlay').classList.add('hidden');
@@ -187,10 +151,8 @@ function update() {
     updateTimerDisplay();
     direction = nextDirection;
     const head = {...snake[0]};
-    if(direction === 'UP') head.y--;
-    if(direction === 'DOWN') head.y++;
-    if(direction === 'LEFT') head.x--;
-    if(direction === 'RIGHT') head.x++;
+    if(direction === 'UP') head.y--; if(direction === 'DOWN') head.y++;
+    if(direction === 'LEFT') head.x--; if(direction === 'RIGHT') head.x++;
     if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
         alert("Kết thúc! Điểm của bạn: " + score);
         location.reload();
@@ -203,15 +165,19 @@ function update() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Vẽ thức ăn (Đỏ VietinBank)
     ctx.fillStyle = "#ed1c24";
     ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
-    // Vẽ rắn (Xanh VietinBank)
     snake.forEach((part, i) => {
         ctx.fillStyle = i === 0 ? "#003a70" : "#00a8e1";
-        ctx.beginPath();
-        ctx.roundRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2, 4);
-        ctx.fill();
+        if (i === 0) {
+            ctx.beginPath(); ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8); ctx.fill();
+            ctx.fillStyle = "white"; // Mắt
+            ctx.fillRect(part.x*GS+GS/2, part.y*GS+3, 2, 2); ctx.fillRect(part.x*GS+GS/2, part.y*GS+GS-5, 2, 2);
+        } else if (i === snake.length - 1) {
+            ctx.beginPath(); ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
+        } else {
+            ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
+        }
     });
 }
 
@@ -231,14 +197,11 @@ function showQuiz() {
     q.a.forEach((opt, i) => {
         const btn = document.createElement('button');
         btn.className = 'opt-btn'; btn.innerText = opt;
-        const submitAns = (e) => {
+        btn.onclick = (e) => {
             e.preventDefault();
-            if(i === q.c) { score += 10; alert("Chính xác! +10 điểm"); } 
-            else { if(snake.length > 1) snake.pop(); alert("Chưa đúng rồi!"); }
+            if(i === q.c) { score += 10; alert("Đúng!"); } else { if(snake.length > 1) snake.pop(); alert("Sai!"); }
             nextStep();
         };
-        btn.addEventListener('touchstart', submitAns);
-        btn.addEventListener('click', submitAns);
         container.appendChild(btn);
     });
     document.getElementById('quiz-overlay').classList.remove('hidden');
