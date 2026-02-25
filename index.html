@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VietinBank Snake Game - Final</title>
+    <title>VietinBank Snake Game - Final Version</title>
     <style>
         :root { 
             --vtb-blue-dark: #003a70; 
@@ -13,56 +13,31 @@
         }
         * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; touch-action: manipulation; }
         body { margin: 0; background: var(--bg-gradient); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        header { 
-            height: 55px; background: var(--vtb-blue-dark); color: white; 
-            display: flex; align-items: center; padding: 0 15px; 
-            justify-content: space-between; border-bottom: 3px solid var(--vtb-blue-light); flex-shrink: 0;
-        }
-        
+        header { height: 55px; background: var(--vtb-blue-dark); color: white; display: flex; align-items: center; padding: 0 15px; justify-content: space-between; border-bottom: 3px solid var(--vtb-blue-light); flex-shrink: 0; }
         #game-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; padding: 5px; }
         canvas { background: white; border: 2px solid var(--vtb-blue-dark); border-radius: 4px; display: block; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        .overlay { 
-            position: absolute; inset: 0; background: rgba(0, 58, 112, 0.98); 
-            display: flex; flex-direction: column; justify-content: center; align-items: center; 
-            z-index: 9999; color: white; padding: 25px; text-align: center;
-        }
+        .overlay { position: absolute; inset: 0; background: rgba(0, 58, 112, 0.98); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; color: white; padding: 25px; text-align: center; }
         .hidden { display: none !important; }
-        
         .brand-box { background: white; padding: 15px 30px; border-radius: 8px; margin-bottom: 20px; }
-        .brand-text { color: var(--vtb-blue-dark); font-size: 2.2rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-        
-        .intro-text { font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; color: #e0f2ff; max-width: 350px; }
-        
+        .brand-text { color: var(--vtb-blue-dark); font-size: 2.2rem; font-weight: 800; margin: 0; }
         input, select { padding: 12px; width: 100%; max-width: 280px; border-radius: 8px; border: none; margin-bottom: 12px; font-size: 16px; outline: none; }
-        
-        .btn-start { 
-            background: var(--vtb-red); color: white; padding: 15px 45px; border: none; border-radius: 50px; 
-            font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #b31217;
-        }
-
+        .btn-start { background: var(--vtb-red); color: white; padding: 15px 45px; border: none; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 0 #b31217; }
         .controls-wrapper { background: #fff; padding: 10px 0; border-top: 1px solid #ddd; flex-shrink: 0; display: flex; justify-content: center; position: relative; }
         .d-pad { display: grid; grid-template-columns: repeat(3, 60px); grid-template-rows: repeat(2, 60px); gap: 8px; }
         .ctrl-btn { width: 60px; height: 60px; background: var(--vtb-blue-dark); color: white; border: none; border-radius: 12px; font-size: 1.5rem; display: flex; align-items: center; justify-content: center; }
         .up { grid-column: 2; } .left { grid-column: 1; grid-row: 2; } .down { grid-column: 2; grid-row: 2; } .right { grid-column: 3; grid-row: 2; }
-
-        .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10001; }
-        .vtb-footnote { height: 8px; width: 100%; background: linear-gradient(90deg, var(--vtb-blue-dark) 0%, var(--vtb-blue-light) 50%, var(--vtb-red) 100%); flex-shrink: 0; }
-        
-        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 450px; border-top: 6px solid var(--vtb-red); max-height: 80vh; overflow-y: auto; }
-        .quiz-card h4 { font-size: 0.95rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
-        .opt-btn { width: 100%; padding: 10px 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.85rem; cursor: pointer; }
-        
+        .quiz-card { background: white; color: #333; padding: 20px; border-radius: 12px; width: 90%; max-width: 480px; border-top: 6px solid var(--vtb-red); max-height: 80vh; overflow-y: auto; }
+        .quiz-card h4 { font-size: 1rem; margin-bottom: 15px; text-align: left; line-height: 1.4; color: var(--vtb-blue-dark); }
+        .opt-btn { width: 100%; padding: 12px; margin-top: 8px; border: 1px solid #ddd; border-radius: 6px; text-align: left; background: #f9f9f9; font-size: 0.9rem; cursor: pointer; }
         .result-msg { font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; }
-        .success { color: #28a745; }
-        .failure { color: var(--vtb-red); }
+        .success { color: #28a745; } .failure { color: var(--vtb-red); }
+        .audio-toggle { position: absolute; right: 15px; top: 15px; background: #eee; border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; z-index: 10001; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 1rem; font-weight: bold;">Snake Game</div>
+    <div style="font-size: 1rem; font-weight: bold;">Snake Game - VTB Training</div>
     <div style="font-size: 0.85rem;">⏱ <b id="timer">00:00</b> | 🏆 <b id="score">0</b></div>
 </header>
 
@@ -70,17 +45,13 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="menu-overlay" class="overlay">
-        <div class="brand-box">
-             <h1 class="brand-text">VietinBank</h1>
-        </div>
-        <p class="intro-text">
-            Khám phá Khung năng lực VietinBank và 7 thói quen làm việc hiệu quả. Hãy săn mồi và trả lời hết bộ câu hỏi để chiến thắng!
-        </p>
-        <input type="text" id="student-name" placeholder="Họ và tên">
+        <div class="brand-box"><h1 class="brand-text">VietinBank</h1></div>
+        <p style="max-width:350px; margin-bottom:20px;">Săn mồi để trả lời hết bộ câu hỏi về Khung năng lực và Chuẩn mực hành vi!</p>
+        <input type="text" id="student-name" placeholder="Nhập họ và tên">
         <select id="level-select">
-            <option value="easy">Cấp độ: KIẾN THỨC</option>
-            <option value="medium">Cấp độ: HIỂU</option>
-            <option value="hard">Cấp độ: VẬN DỤNG</option>
+            <option value="easy">Cấp độ: KIẾN THỨC (Dữ liệu file)</option>
+            <option value="medium">Cấp độ: HIỂU (Biên soạn mới)</option>
+            <option value="hard">Cấp độ: VẬN DỤNG (Tình huống)</option>
         </select>
         <button class="btn-start" id="start-trigger">BẮT ĐẦU CHƠI</button>
     </div>
@@ -96,14 +67,12 @@
         <div class="quiz-card">
             <div id="result-content" class="result-msg"></div>
             <p id="result-subtext" style="margin-bottom: 20px; color: #666;"></p>
-            <button class="btn-start" id="result-btn" onclick="closeResult()">TIẾP TỤC</button>
+            <button class="btn-start" onclick="closeResult()">TIẾP TỤC</button>
         </div>
     </div>
 
     <div id="gameover-overlay" class="overlay hidden">
-        <div class="brand-box">
-            <h2 id="over-title" style="color: var(--vtb-red); margin: 0;">GAME OVER</h2>
-        </div>
+        <div class="brand-box"><h2 id="over-title" style="color: var(--vtb-red); margin: 0;">KẾT THÚC</h2></div>
         <p id="over-desc" style="font-size: 1.1rem;"></p>
         <p style="font-size: 1.4rem;">Tổng điểm: <b id="final-score" style="color: var(--vtb-blue-light);">0</b></p>
         <button class="btn-start" onclick="location.reload()">CHƠI LẠI</button>
@@ -120,190 +89,122 @@
     </div>
 </div>
 
-<div class="vtb-footnote"></div>
-
 <script>
-// --- AUDIO SYSTEM ---
+// --- AUDIO ---
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx;
-let isMuted = false;
-
-function initAudio() {
-    if (!audioCtx) {
-        audioCtx = new AudioCtx();
-        startBGMusic();
-    }
-}
-
+let audioCtx; let isMuted = false;
+function initAudio() { if (!audioCtx) { audioCtx = new AudioCtx(); startBGMusic(); } }
 function startBGMusic() {
-    const melody = [261, 329, 392, 523, 392, 329]; 
-    let i = 0;
-    setInterval(() => {
-        if (!isMuted && gameState === 'PLAYING' && !isPaused) {
-            playTone(melody[i % melody.length], 'triangle', 0.15, 0.02);
-            i++;
-        }
-    }, 450);
+    const melody = [261, 329, 392, 523, 440, 349]; let i = 0;
+    setInterval(() => { if (!isMuted && gameState === 'PLAYING' && !isPaused) { playTone(melody[i % melody.length], 'triangle', 0.15, 0.02); i++; } }, 450);
 }
-
 function playTone(freq, type, duration, vol) {
     if (isMuted || !audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    g.gain.setValueAtTime(vol, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(g); g.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + duration);
+    const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
+    osc.type = type; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    g.gain.setValueAtTime(vol, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(g); g.connect(audioCtx.destination); osc.start(); osc.stop(audioCtx.currentTime + duration);
 }
 
-const sfx = {
-    eat: () => playTone(800, 'sine', 0.1, 0.1),
-    correct: () => { playTone(523, 'sine', 0.1, 0.1); setTimeout(() => playTone(659, 'sine', 0.2, 0.1), 100); },
-    wrong: () => playTone(150, 'sawtooth', 0.4, 0.1),
-    over: () => playTone(100, 'square', 0.6, 0.1)
-};
-
-// --- DATA CÂU HỎI TỪ FILE ---
-const QUESTIONS_BANK = {
+// --- QUESTIONS BANK ---
+const BANK = {
     easy: [
-        { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
-        { q: "Sứ mệnh của VietinBank mang lại giá trị gì cho khách hàng, cổ đông...?", a: ["Giá trị tối ưu", "Giá trị tuyệt đối", "Giá trị cao nhất"], c: 0 },
-        { q: "VietinBank lấy mục tiêu gì làm định hướng phát triển trong mọi thời kỳ?", a: ["Lợi nhuận cao nhất", "An toàn, hiệu quả, bền vững", "Mở rộng quy mô"], c: 1 },
-        { q: "Việc xây dựng và lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Ban Lãnh đạo", "Phòng Nhân sự", "Toàn thể CBNV"], c: 2 },
-        { q: "Triết lý hoạt động của VietinBank khẳng định khách hàng là gì?", a: ["Người trả lương", "Trung tâm", "Bạn đồng hành"], c: 1 }
+        { q: "Chiến lược Văn hóa doanh nghiệp Khát vọng tầm cao mới và Bộ nhận diện văn hóa được ban hành khi nào?", a: ["Năm 2020", "Năm 2021", "Năm 2022", "Năm 2023"], c: 3 },
+        { q: "Sứ mệnh VietinBank: (i)… trong phát triển đất nước trên cơ sở mang lại giá trị (ii) … cho khách hàng, đối tác...", a: ["(i)Trụ cột; (ii) Tối ưu", "(i)Tiên phong; (ii) Tốt nhất", "(i)Tiên phong; (ii) Tối ưu"], c: 2 },
+        { q: "Tầm nhìn 2030: VietinBank thuộc Top ngân hàng mạnh nhất khu vực nào?", a: ["Đông Nam Á", "Châu Á - Thái Bình Dương", "Toàn cầu"], c: 1 },
+        { q: "VietinBank luôn lấy ... làm mục tiêu phát triển trong mọi thời kỳ (Triết lý hoạt động)?", a: ["Khách hàng là trung tâm", "Phát triển con người", "Đổi mới sáng tạo", "An toàn, hiệu quả, bền vững"], c: 3 },
+        { q: "Tại VietinBank, việc xây dựng và lan tỏa Văn hóa doanh nghiệp là trách nhiệm của ai?", a: ["Ban lãnh đạo", "Hạt nhân văn hóa", "Toàn thể CBNV"], c: 2 },
+        { q: "Theo QĐ 218, trong ứng xử cấp dưới với cấp trên, đâu là hành vi chuẩn mực?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Thẳng thắn đóng góp ý kiến", "Tất cả các hành vi trên"], c: 3 }
     ],
     medium: [
-        { q: "Trong ứng xử cấp dưới với cấp trên, chuẩn mực nào sau đây là đúng?", a: ["Tuân thủ thời gian hoàn thành việc", "Chủ động xin ý kiến và thúc đẩy tiến độ", "Chân thành đóng góp ý kiến", "Tất cả các hành vi trên"], c: 3 }
+        { q: "Tại sao 'An toàn, hiệu quả, bền vững' lại được chọn là mục tiêu xuyên suốt thay vì chỉ tập trung vào lợi nhuận?", a: ["Để đảm bảo tăng trưởng ngắn hạn", "Để thực hiện đúng vai trò NHTM quốc gia trụ cột", "Để cạnh tranh về phí dịch vụ"], c: 1 },
+        { q: "Việc coi 'Khách hàng là trung tâm' trong mọi hoạt động có ý nghĩa gì?", a: ["Luôn đáp ứng mọi yêu cầu vô lý của khách", "Xây dựng giải pháp tài chính tối ưu dựa trên nhu cầu khách", "Chỉ tập trung vào khách hàng lớn"], c: 1 },
+        { q: "Chuẩn mực 'Thẳng thắn, chân thành đóng góp ý kiến với cấp trên' nhằm mục đích gì?", a: ["Để hạ thấp uy tín cấp trên", "Để xây dựng môi trường làm việc minh bạch, cầu thị", "Để từ chối công việc khó"], c: 1 }
     ],
     hard: [
-        { q: "Đâu là danh sách các giá trị cốt lõi của VietinBank?", a: ["Chính trực-Bản lĩnh-Sáng tạo-Tận tâm-Thích ứng", "Chính trực-Trách nhiệm-Sáng tạo-Tận tâm-Thích ứng"], c: 0 }
+        { q: "Tình huống: Cấp trên giao một nhiệm vụ khó và gấp. Theo chuẩn mực hành vi VTB, bạn nên làm gì?", a: ["Im lặng thực hiện dù không hiểu", "Chủ động xin ý kiến chỉ dẫn và báo cáo tiến độ thường xuyên", "Chờ đến hạn mới báo cáo là không làm được"], c: 1 },
+        { q: "Tình huống: Bạn phát hiện một quy trình hiện tại có thể gây rủi ro cho khách hàng. Giá trị cốt lõi nào cần phát huy?", a: ["Chính trực và Trách nhiệm", "Thích ứng", "Bản lĩnh"], c: 0 },
+        { q: "Tình huống: Bạn gặp một khách hàng đang phàn nàn gay gắt. Theo triết lý phụng sự, thái độ nào là đúng?", a: ["Giải thích lỗi tại quy trình", "Lắng nghe, thấu hiểu và tìm giải pháp tối ưu nhất cho khách", "Yêu cầu khách hàng bình tĩnh rồi mới làm việc"], c: 1 }
     ]
 };
 
-let canvas, ctx, snake, food, direction, nextDirection, score, gameTimer, seconds, activeQuestions, currentQIdx, isPaused, gameState, playerName;
+let canvas, ctx, snake, food, direction, nextDirection, score, gameTimer, seconds, activeQs, currentIdx, isPaused, gameState, playerName;
 const GS = 15;
 
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('start-trigger').addEventListener('click', validateAndStart);
-    document.getElementById('audio-toggle').addEventListener('click', () => {
-        isMuted = !isMuted;
-        document.getElementById('audio-toggle').innerText = isMuted ? '🔇' : '🔊';
+    document.getElementById('start-trigger').addEventListener('click', () => {
+        initAudio(); playerName = document.getElementById('student-name').value.trim();
+        if (!playerName) return alert("Vui lòng nhập tên!"); startGame();
     });
     init();
 });
 
 function init() {
-    canvas = document.getElementById('gameCanvas');
-    ctx = canvas.getContext('2d');
-    const containerWidth = document.getElementById('game-container').clientWidth - 10;
-    canvas.width = Math.floor(containerWidth / GS) * GS;
+    canvas = document.getElementById('gameCanvas'); ctx = canvas.getContext('2d');
+    canvas.width = Math.floor((document.getElementById('game-container').clientWidth - 10)/GS)*GS;
     canvas.height = canvas.width;
 }
 
-function validateAndStart() {
-    initAudio();
-    playerName = document.getElementById('student-name').value.trim();
-    if (!playerName) { alert("Vui lòng nhập tên!"); return; }
-    startGame();
-}
-
 function startGame() {
-    const lv = document.getElementById('level-select').value;
-    // Lấy câu hỏi và xáo trộn
-    activeQuestions = shuffle([...QUESTIONS_BANK[lv]]);
-    currentQIdx = 0; score = 0; seconds = 0;
+    activeQs = shuffle([...BANK[document.getElementById('level-select').value]]);
+    currentIdx = 0; score = 0; seconds = 0;
     snake = [{x: 5, y: 5}, {x: 4, y: 5}, {x: 3, y: 5}];
     direction = 'RIGHT'; nextDirection = 'RIGHT';
     gameState = 'PLAYING'; isPaused = false;
     document.getElementById('menu-overlay').classList.add('hidden');
-    spawnFood();
-    if(gameTimer) clearInterval(gameTimer);
+    spawnFood(); if(gameTimer) clearInterval(gameTimer);
     gameTimer = setInterval(update, 200);
-}
-
-function shuffle(arr) {
-    return arr.sort(() => Math.random() - 0.5);
 }
 
 function update() {
     if(isPaused || gameState !== 'PLAYING') return;
-    seconds += 0.2;
-    updateTimerDisplay();
-    direction = nextDirection;
+    seconds += 0.2; updateTimerDisplay(); direction = nextDirection;
     const head = {...snake[0]};
     if(direction === 'UP') head.y--; if(direction === 'DOWN') head.y++;
     if(direction === 'LEFT') head.x--; if(direction === 'RIGHT') head.x++;
     
-    if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) {
-        gameOver("Bạn đã va chạm!");
-        return;
-    }
+    if(head.x < 0 || head.x >= canvas.width/GS || head.y < 0 || head.y >= canvas.height/GS || snake.some(s => s.x === head.x && s.y === head.y)) return gameOver("Bạn đã va chạm!");
     
     snake.unshift(head);
-    if(head.x === food.x && head.y === food.y) {
-        sfx.eat();
-        showQuiz();
-    } else {
-        snake.pop();
-    }
+    if(head.x === food.x && head.y === food.y) { playTone(800, 'sine', 0.1, 0.1); showQuiz(); } else { snake.pop(); }
     draw();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#ed1c24";
-    ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
-
-    snake.forEach((part, i) => {
-        const isHead = (i === 0);
-        const isTail = (i === snake.length - 1);
-        ctx.fillStyle = isHead ? "#003a70" : "#00a8e1";
-        if (isHead) {
-            ctx.beginPath(); ctx.roundRect(part.x*GS, part.y*GS, GS, GS, 8); ctx.fill();
-            ctx.fillStyle = "white";
-            if(direction==='RIGHT') ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2);
-            else if(direction==='LEFT') ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2);
-            else if(direction==='UP') ctx.fillRect(part.x*GS+3, part.y*GS+3, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+3, 2, 2);
-            else if(direction==='DOWN') ctx.fillRect(part.x*GS+3, part.y*GS+GS-5, 2, 2), ctx.fillRect(part.x*GS+GS-5, part.y*GS+GS-5, 2, 2);
-        } else if (isTail) {
-            ctx.beginPath(); ctx.arc(part.x*GS+GS/2, part.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
-        } else {
-            ctx.fillRect(part.x*GS+1, part.y*GS+1, GS-2, GS-2);
-        }
+    ctx.fillStyle = "#ed1c24"; ctx.beginPath(); ctx.arc(food.x*GS+GS/2, food.y*GS+GS/2, GS/2-2, 0, Math.PI*2); ctx.fill();
+    snake.forEach((p, i) => {
+        const isH = (i === 0); ctx.fillStyle = isH ? "#003a70" : "#00a8e1";
+        if(isH) { 
+            ctx.beginPath(); ctx.roundRect(p.x*GS, p.y*GS, GS, GS, 8); ctx.fill();
+            ctx.fillStyle = "white"; 
+            if(direction==='RIGHT') ctx.fillRect(p.x*GS+GS-5, p.y*GS+3, 2, 2), ctx.fillRect(p.x*GS+GS-5, p.y*GS+GS-5, 2, 2);
+            else if(direction==='LEFT') ctx.fillRect(p.x*GS+3, p.y*GS+3, 2, 2), ctx.fillRect(p.x*GS+3, p.y*GS+GS-5, 2, 2);
+        } else if(i === snake.length-1) {
+            ctx.beginPath(); ctx.arc(p.x*GS+GS/2, p.y*GS+GS/2, GS/3, 0, Math.PI*2); ctx.fill();
+        } else { ctx.fillRect(p.x*GS+1, p.y*GS+1, GS-2, GS-2); }
     });
 }
 
 function showQuiz() {
-    isPaused = true;
-    const q = activeQuestions[currentQIdx];
-    document.getElementById('question-text').innerText = `Câu ${currentQIdx + 1}/${activeQuestions.length}: ${q.q}`;
-    const container = document.getElementById('options-container');
-    container.innerHTML = '';
-    
+    isPaused = true; const q = activeQs[currentIdx];
+    document.getElementById('question-text').innerText = `[Câu ${currentIdx+1}/${activeQs.length}] ${q.q}`;
+    const container = document.getElementById('options-container'); container.innerHTML = '';
     q.a.forEach((opt, i) => {
-        const btn = document.createElement('button');
-        btn.className = 'opt-btn'; 
+        const btn = document.createElement('button'); btn.className = 'opt-btn';
         btn.innerText = String.fromCharCode(65 + i) + ". " + opt;
         btn.onclick = () => {
             document.getElementById('quiz-overlay').classList.add('hidden');
-            const resContent = document.getElementById('result-content');
-            const resSub = document.getElementById('result-subtext');
+            const resC = document.getElementById('result-content'), resS = document.getElementById('result-subtext');
             if(i === q.c) {
-                sfx.correct(); score += 10;
-                resContent.innerText = "CHÍNH XÁC! 🎉";
-                resContent.className = "result-msg success";
-                resSub.innerText = "Chúc mừng bạn đã trả lời đúng.";
-                currentQIdx++; // Chuyển sang câu tiếp theo
-                if(currentQIdx >= activeQuestions.length) {
-                    document.getElementById('result-btn').onclick = () => gameOver("Chúc mừng bạn đã hoàn thành bộ câu hỏi!");
-                }
+                playTone(523, 'sine', 0.1, 0.1); score += 10;
+                resC.innerText = "CHÍNH XÁC! 🎉"; resC.className = "result-msg success";
+                resS.innerText = "Bạn đã nắm vững kiến thức này."; currentIdx++;
+                if(currentIdx >= activeQs.length) return gameOver("Xuất sắc! Bạn đã hoàn thành bộ câu hỏi.");
             } else {
-                sfx.wrong(); if(snake.length > 1) snake.pop();
-                resContent.innerText = "SAI RỒI! ❌";
-                resContent.className = "result-msg failure";
-                resSub.innerText = "Hãy săn mồi để thử lại câu hỏi này nhé!";
+                playTone(150, 'sawtooth', 0.4, 0.1); if(snake.length > 2) snake.pop(); // Rắn ngắn đi
+                resC.innerText = "SAI RỒI! ❌"; resC.className = "result-msg failure";
+                resS.innerText = "Rắn đã bị ngắn đi. Hãy săn mồi để thử lại câu này nhé!";
             }
             document.getElementById('result-overlay').classList.remove('hidden');
         };
@@ -312,17 +213,10 @@ function showQuiz() {
     document.getElementById('quiz-overlay').classList.remove('hidden');
 }
 
-function closeResult() {
-    document.getElementById('result-overlay').classList.add('hidden');
-    document.getElementById('score').innerText = score;
-    isPaused = false;
-    spawnFood();
-}
+function closeResult() { document.getElementById('result-overlay').classList.add('hidden'); document.getElementById('score').innerText = score; isPaused = false; spawnFood(); }
 
 function gameOver(msg) {
-    gameState = 'OVER';
-    clearInterval(gameTimer);
-    sfx.over();
+    gameState = 'OVER'; clearInterval(gameTimer); playTone(100, 'square', 0.6, 0.1);
     document.getElementById('over-title').innerText = msg.includes("hoàn thành") ? "CHIẾN THẮNG!" : "GAME OVER";
     document.getElementById('over-desc').innerText = `${playerName}, ${msg}`;
     document.getElementById('final-score').innerText = score;
@@ -330,24 +224,18 @@ function gameOver(msg) {
 }
 
 function setDir(d) {
-    if(d === 'UP' && direction !== 'DOWN') nextDirection = 'UP';
-    if(d === 'DOWN' && direction !== 'UP') nextDirection = 'DOWN';
-    if(d === 'LEFT' && direction !== 'RIGHT') nextDirection = 'LEFT';
-    if(d === 'RIGHT' && direction !== 'LEFT') nextDirection = 'RIGHT';
+    if(d==='UP'&&direction!=='DOWN') nextDirection='UP'; if(d==='DOWN'&&direction!=='UP') nextDirection='DOWN';
+    if(d==='LEFT'&&direction!=='RIGHT') nextDirection='LEFT'; if(d==='RIGHT'&&direction!=='LEFT') nextDirection='RIGHT';
 }
 
 function spawnFood() {
-    let newFood;
-    while(true) {
-        newFood = { x: Math.floor(Math.random()*(canvas.width/GS)), y: Math.floor(Math.random()*(canvas.height/GS)) };
-        if (!snake.some(s => s.x === newFood.x && s.y === newFood.y)) break;
-    }
-    food = newFood;
+    let nf; while(true) { nf = {x:Math.floor(Math.random()*(canvas.width/GS)), y:Math.floor(Math.random()*(canvas.height/GS))}; if(!snake.some(s=>s.x===nf.x&&s.y===nf.y)) break; }
+    food = nf;
 }
 
+function shuffle(a) { return a.sort(() => Math.random() - 0.5); }
 function updateTimerDisplay() {
-    const m = Math.floor(seconds/60).toString().padStart(2,'0');
-    const s = Math.floor(seconds%60).toString().padStart(2,'0');
+    const m = Math.floor(seconds/60).toString().padStart(2,'0'), s = Math.floor(seconds%60).toString().padStart(2,'0');
     document.getElementById('timer').innerText = `${m}:${s}`;
 }
 </script>
